@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="hero card">
+    <view class="penguin">🐧</view>
+    <view>
+      <view class="hello">晚上好！</view>
+      <view class="sub">今天冰箱很充实～</view>
+    </view>
+  </view>
+
+  <view class="search">
+    搜索食材……
+  </view>
+
+  <view class="section-title">快过期（{{expiringItems.length}}）</view>
+  <view class="expiring-list">
+  <block wx:for="{{expiringItems}}" wx:key="id">
+    <food-card item="{{item}}" bind:foodtap="onFoodTap" />
+  </block>
+</view>
+
+  <view class="section-title">我的冰箱</view>
+  <view class="area-grid">
+    <block wx:for="{{fridgeAreas}}" wx:key="name">
+      <view class="area-card" data-category="{{item.name}}"bindtap="goInventory">
+        <view class="area-icon">{{item.icon}}</view>
+        <view class="area-name">{{item.name}}</view>
+        <view class="area-count">{{item.count}} 件</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-title">最近更新</view>
+  <view class="card">
+    <block wx:for="{{recentLogs}}" wx:key="*this">
+      <view class="log-item">{{item}}</view>
+    </block>
+  </view>
+</view>

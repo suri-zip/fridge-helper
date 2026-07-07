@@ -1,0 +1,72 @@
+.hero {
+  background: #A7D8FF;
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+  padding: 36rpx;
+}
+
+.penguin {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 28rpx;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+}
+
+.hello {
+  font-size: 40rpx;
+  font-weight: 800;
+}
+
+.sub {
+  margin-top: 8rpx;
+  font-size: 30rpx;
+}
+
+.search {
+  margin-top: 24rpx;
+  background: #ffffff;
+  color: #9CA3AF;
+  padding: 24rpx 32rpx;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+}
+
+
+.area-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.area-card {
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.06);
+}
+
+.area-icon {
+  font-size: 52rpx;
+}
+
+.area-name {
+  margin-top: 16rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.area-count {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.log-item {
+  padding: 16rpx 0;
+  font-size: 28rpx;
+}

@@ -1,0 +1,23 @@
+<view class="food-card" bindtap="onFoodTap">
+  <view class="food-icon">
+    {{item.emoji || "🍽️"}}
+  </view>
+
+  <view class="food-info">
+    <view class="food-name">{{item.name}}</view>
+
+    <view class="food-meta">
+      剩余：{{item.quantity}}{{item.unit}}
+    </view>
+
+    <view class="food-date">
+      {{item.expireText}}
+    </view>
+  </view>
+
+  <view class="status {{item.status}}">
+    <block wx:if="{{item.status === 'danger'}}">快吃</block>
+    <block wx:elif="{{item.status === 'warning'}}">注意</block>
+    <block wx:else>新鲜</block>
+  </view>
+</view>

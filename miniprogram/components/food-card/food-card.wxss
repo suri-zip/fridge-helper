@@ -1,0 +1,59 @@
+.food-card {
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.food-icon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #EAF5FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  flex-shrink: 0;
+}
+
+.food-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.food-name {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.food-meta,
+.food-date {
+  margin-top: 4rpx;
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.status {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.status.fresh {
+  background: #7ED9A3;
+}
+
+.status.warning {
+  background: #FFD86E;
+}
+
+.status.danger {
+  background: #FF8E8E;
+  color: #ffffff;
+}

@@ -1,0 +1,39 @@
+.search {
+
+  background: white;
+
+  border-radius: 999rpx;
+
+  padding: 20rpx 30rpx;
+
+  margin-bottom: 20rpx;
+
+}
+
+.category-bar {
+
+  white-space: nowrap;
+
+  margin-bottom: 30rpx;
+
+}
+
+.category {
+
+  display: inline-block;
+
+  padding: 14rpx 26rpx;
+
+  margin-right: 18rpx;
+
+  background: white;
+
+  border-radius: 999rpx;
+
+}
+
+.active {
+
+  background: #A7D8FF;
+
+}

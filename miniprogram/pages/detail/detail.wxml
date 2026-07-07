@@ -1,0 +1,112 @@
+<view class="container" wx:if="{{item}}">
+  <view class="detail-hero card">
+    <view class="big-emoji">{{item.emoji || "🍽️"}}</view>
+
+    <view class="hero-info">
+      <view class="food-title">{{item.name}}</view>
+      <view class="food-sub">{{item.storage}} · {{item.category}}</view>
+      <view class="expire-tag {{item.status}}">{{item.expireText}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{!isEditing}}">
+    <view class="card info-card">
+      <view class="info-row">
+        <view class="info-label">数量</view>
+        <view class="info-value">{{item.quantity}}{{item.unit}}</view>
+      </view>
+
+      <view class="info-row">
+        <view class="info-label">存放位置</view>
+        <view class="info-value">{{item.storage}}</view>
+      </view>
+
+      <view class="info-row">
+        <view class="info-label">分类</view>
+        <view class="info-value">{{item.category}}</view>
+      </view>
+
+      <view class="info-row">
+        <view class="info-label">购买日期</view>
+        <view class="info-value">{{item.purchaseDate || "暂无"}}</view>
+      </view>
+
+      <view class="info-row">
+        <view class="info-label">保质期至</view>
+        <view class="info-value">{{item.expireDate || "暂无"}}</view>
+      </view>
+    </view>
+
+    <button class="primary-btn" bindtap="startEdit">编辑食材</button>
+  </view>
+
+  <view wx:else>
+    <view class="card form-card">
+      <view class="field">
+        <view class="label">图标</view>
+        <view class="emoji-grid">
+          <block wx:for="{{emojiOptions}}" wx:key="*this">
+            <view
+              class="emoji-item {{form.emoji === item ? 'selected' : ''}}"
+              data-emoji="{{item}}"
+              bindtap="selectEmoji"
+            >
+              {{item}}
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">食材名称</view>
+        <input class="input" value="{{form.name}}" data-field="name" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <view class="label">数量</view>
+        <view class="quantity-control">
+          <view class="square-btn" bindtap="decreaseQuantity">－</view>
+          <input class="quantity-input" type="number" value="{{form.quantity}}" data-field="quantity" bindinput="onInput" />
+          <view class="square-btn" bindtap="increaseQuantity">＋</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="label">单位</view>
+        <picker range="{{unitOptions}}" bindchange="onUnitChange">
+          <view class="picker">{{form.unit}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">存放位置</view>
+        <picker range="{{storageOptions}}" bindchange="onStorageChange">
+          <view class="picker">{{form.storage}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">分类</view>
+        <picker range="{{categoryOptions}}" bindchange="onCategoryChange">
+          <view class="picker">{{form.category}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <view class="label">保质期至</view>
+        <picker mode="date" value="{{form.expireDate}}" bindchange="onExpireDateChange">
+          <view class="picker">{{form.expireDate || "请选择日期"}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="action-row">
+      <button class="secondary-btn" bindtap="cancelEdit">取消</button>
+      <button class="primary-btn half" bindtap="saveEdit">保存</button>
+    </view>
+  </view>
+</view>
+
+<view class="container" wx:else>
+  <view class="card">没有找到这个食材。</view>
+</view>

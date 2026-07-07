@@ -1,0 +1,185 @@
+.detail-hero {
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+  background: #A7D8FF;
+}
+
+.big-emoji {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 36rpx;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 76rpx;
+  flex-shrink: 0;
+}
+
+.hero-info {
+  flex: 1;
+}
+
+.food-title {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #1F2937;
+}
+
+.food-sub {
+  margin-top: 8rpx;
+  font-size: 28rpx;
+  color: #374151;
+}
+
+.expire-tag {
+  display: inline-block;
+  margin-top: 18rpx;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  background: #7ED9A3;
+}
+
+.expire-tag.warning {
+  background: #FFD86E;
+}
+
+.expire-tag.danger {
+  background: #FF8E8E;
+  color: #ffffff;
+}
+
+.info-card {
+  margin-top: 28rpx;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #E5E7EB;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #6B7280;
+  font-size: 28rpx;
+}
+
+.info-value {
+  color: #1F2937;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.primary-btn,
+.secondary-btn {
+  margin-top: 28rpx;
+  border-radius: 999rpx;
+  font-weight: 700;
+}
+
+.primary-btn {
+  background: #A7D8FF;
+  color: #1F2937;
+}
+
+.secondary-btn {
+  background: #F8FAFC;
+  color: #6B7280;
+}
+
+.form-card {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.input,
+.picker {
+  background: #F8FAFC;
+  border-radius: 24rpx;
+  padding: 22rpx 26rpx;
+  font-size: 28rpx;
+  color: #1F2937;
+}
+
+.emoji-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.emoji-item {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 20rpx;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  border: 4rpx solid transparent;
+}
+
+.emoji-item.selected {
+  background: #EAF5FF;
+  border-color: #A7D8FF;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.square-btn {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  background: #A7D8FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.quantity-input {
+  flex: 1;
+  height: 80rpx;
+  background: #F8FAFC;
+  border-radius: 20rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.action-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-row button {
+  flex: 1;
+}

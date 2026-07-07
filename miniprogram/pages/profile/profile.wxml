@@ -1,0 +1,4 @@
+<view class="container">
+  <view class="section-title">我的</view>
+  <view class="card">这里之后放家庭成员和设置。</view>
+</view>

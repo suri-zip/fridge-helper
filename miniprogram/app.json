@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/inventory/inventory",
+    "pages/add/add",
+    "pages/profile/profile",
+    "pages/recipe/recipe",
+    "components/food-card/food-card",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "navigationBarTitleText": "囤囤",
+    "navigationBarBackgroundColor": "#A7D8FF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F8FAFC"
+  },
+  "tabBar": {
+    "color": "#8A8A8A",
+    "selectedColor": "#4A9FE8",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/inventory/inventory",
+        "text": "库存"
+      },
+      {
+        "pagePath": "pages/add/add",
+        "text": "添加"
+      },
+      {
+        "pagePath": "pages/recipe/recipe",
+        "text": "菜谱"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

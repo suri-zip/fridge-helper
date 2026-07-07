@@ -1,0 +1,46 @@
+<view class="container">
+
+<input
+    class="search"
+    placeholder="搜索食材..."
+    bindinput="onSearch"
+/>
+
+<scroll-view
+    scroll-x
+    class="category-bar"
+>
+
+    <block
+        wx:for="{{categories}}"
+        wx:key="*this"
+    >
+
+        <view
+            class="category {{currentCategory==item?'active':''}}"
+            data-category="{{item}}"
+            bindtap="changeCategory"
+        >
+            {{item}}
+        </view>
+
+    </block>
+
+</scroll-view>
+
+<view class="food-list">
+
+    <block
+        wx:for="{{displayList}}"
+        wx:key="id"
+    >
+        <view
+            data-id="{{item.id}}"
+            bindtap="onFoodTap"
+
+        >
+            <food-card item="{{item}}" />
+        </view>
+    </block>
+</view>
+</view>
