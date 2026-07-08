@@ -1,23 +1,60 @@
-const { addFood } = require("../../services/inventory")
-const {getDaysLeft} = require("../../utils/date")
+const { addFood, INVENTORY_CATEGORIES } = require("../../services/inventory")
+const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
+const { getDaysLeft } = require("../../utils/date")
 
 Page({
   data: {
     form: {
       name: "",
       emoji: "🍽️",
-  
       category: "其他",
-      storage: "冷藏",
+      storage: "",
       quantity: "",
       unit: "个",
       purchaseDate: "",
       expireDate: ""
     },
     emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"],
-    storageOptions: ["冷藏", "冷冻", "常温"],
-    categoryOptions: ["水果", "蔬菜", "肉类", "蛋类", "饮料", "速食", "甜品", "其他"],
+    storageOptions: [],
+    storageIndex: 0,
+    categoryOptions: INVENTORY_CATEGORIES,
     unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"]
+  },
+
+  getToday() {
+    const d = new Date()
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${y}-${m}-${day}`
+  },
+
+  syncStorageOptions() {
+    const storageOptions = getFridgeStorageOptions()
+    const currentStorage = this.data.form.storage || (storageOptions[0] && storageOptions[0].value) || ""
+    let storageIndex = storageOptions.findIndex(option => option.value === currentStorage || option.type === currentStorage || option.name === currentStorage)
+
+    if (storageIndex < 0) {
+      storageIndex = 0
+    }
+
+    this.setData({
+      storageOptions,
+      storageIndex,
+      "form.storage": currentStorage || (storageOptions[0] && storageOptions[0].value) || ""
+    })
+  },
+
+  onLoad() {
+    this.setData({
+      "form.purchaseDate": this.getToday()
+    })
+
+    this.syncStorageOptions()
+  },
+
+  onShow() {
+    this.syncStorageOptions()
   },
 
   onInput(e) {
@@ -28,38 +65,24 @@ Page({
       [`form.${field}`]: value
     })
   },
-  getToday() {
-    const d = new Date()
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, "0")
-    const day = String(d.getDate()).padStart(2, "0")
-    return `${y}-${m}-${day}`
-  },
+
   selectEmoji(e) {
     this.setData({
       "form.emoji": e.currentTarget.dataset.emoji
     })
   },
-  onLoad() {
-    this.setData({
-      "form.purchaseDate": this.getToday()
-    })
-  },
-  
-  onExpireDateChange(e) {
-    this.setData({
-      "form.expireDate": e.detail.value
-    })
-  },
-  
-  onPurchaseDateChange(e) {
-    this.setData({
-      "form.purchaseDate": e.detail.value
-    })
-  },
+
   onStorageChange(e) {
+    const storageIndex = Number(e.detail.value)
+    const selectedStorage = this.data.storageOptions[storageIndex]
+
+    if (!selectedStorage) {
+      return
+    }
+
     this.setData({
-      "form.storage": this.data.storageOptions[e.detail.value]
+      storageIndex,
+      "form.storage": selectedStorage.value
     })
   },
 
@@ -74,13 +97,18 @@ Page({
       "form.unit": this.data.unitOptions[e.detail.value]
     })
   },
+
   onExpireDateChange(e) {
-
     this.setData({
-
-        "form.expireDate": e.detail.value
+      "form.expireDate": e.detail.value
     })
-},
+  },
+
+  onPurchaseDateChange(e) {
+    this.setData({
+      "form.purchaseDate": e.detail.value
+    })
+  },
 
   onSave() {
     const form = this.data.form
@@ -105,7 +133,7 @@ Page({
       ...form,
       quantity: Number(form.quantity),
       purchaseDate: form.purchaseDate,
-      expireDate: form.expireDate || "",
+      expireDate: form.expireDate || ""
     })
 
     wx.showToast({
@@ -126,27 +154,19 @@ Page({
     if (days <= 0) return "danger"
     if (days <= 2) return "warning"
     return "fresh"
+  },
 
-},
-
-increaseQuantity() {
-
-  this.setData({
-
+  increaseQuantity() {
+    this.setData({
       "form.quantity": Number(this.data.form.quantity || 0) + 1
+    })
+  },
 
-  })
+  decreaseQuantity() {
+    const quantity = Math.max(0, Number(this.data.form.quantity || 0) - 1)
 
-},
-
-decreaseQuantity() {
-  let quantity = Number(this.data.form.quantity || 0)
-  quantity--
-  if (quantity < 0) {
-      quantity = 0
-  }
-  this.setData({
+    this.setData({
       "form.quantity": quantity
-  })
-}
+    })
+  }
 })

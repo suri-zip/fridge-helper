@@ -1,6 +1,8 @@
 const STORAGE_KEY = "TUNTUN_INVENTORY"
 const { getExpireText, getStatus } = require("../utils/date")
 
+const INVENTORY_CATEGORIES = ["水果", "蔬菜", "肉类", "海鲜", "调料", "饮料", "零食", "其他"]
+
 const defaultInventory = [
   {
     id: "1",
@@ -94,9 +96,21 @@ function updateFood(id, updates) {
   return getFoodById(id)
 }
 
+function removeFoodByStorage(storageName) {
+  const rawData = wx.getStorageSync(STORAGE_KEY)
+  const inventory = rawData && rawData.length ? rawData : defaultInventory
+  const nextInventory = inventory.filter(item => item.storage !== storageName)
+
+  wx.setStorageSync(STORAGE_KEY, nextInventory)
+
+  return nextInventory
+}
+
 module.exports = {
   getInventory,
   addFood,
   getFoodById,
-  updateFood
+  updateFood,
+  removeFoodByStorage,
+  INVENTORY_CATEGORIES
 }

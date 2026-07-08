@@ -20,8 +20,8 @@
 
   <view class="section-title">我的冰箱</view>
   <view class="area-grid">
-    <block wx:for="{{fridgeAreas}}" wx:key="name">
-      <view class="area-card" data-category="{{item.name}}"bindtap="goInventory">
+    <block wx:for="{{fridgeAreas}}" wx:key="id">
+      <view class="area-card" data-area-id="{{item.id}}" data-area-type="{{item.type}}" bindtap="goInventory">
         <view class="area-icon">{{item.icon}}</view>
         <view class="area-name">{{item.name}}</view>
         <view class="area-count">{{item.count}} 件</view>

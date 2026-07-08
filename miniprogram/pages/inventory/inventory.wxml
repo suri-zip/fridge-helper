@@ -1,5 +1,30 @@
 <view class="container">
 
+<view class="section-title">冰箱区域</view>
+
+<scroll-view
+    scroll-x
+    class="area-bar"
+>
+
+    <block
+        wx:for="{{fridgeAreas}}"
+        wx:key="id"
+    >
+
+        <view
+            class="area-chip {{activeAreaId==item.id?'active':''}}"
+            data-area-id="{{item.id}}"
+            data-area-type="{{item.type}}"
+            bindtap="setArea"
+        >
+            {{item.name}} · {{item.count}}
+        </view>
+
+    </block>
+
+</scroll-view>
+
 <input
     class="search"
     placeholder="搜索食材..."

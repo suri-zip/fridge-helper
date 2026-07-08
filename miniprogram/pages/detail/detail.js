@@ -1,4 +1,5 @@
-const { getFoodById, updateFood } = require("../../services/inventory")
+const { getFoodById, updateFood, INVENTORY_CATEGORIES } = require("../../services/inventory")
+const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
 
 Page({
   data: {
@@ -6,9 +7,9 @@ Page({
     item: null,
     form: {},
     isEditing: false,
-
-    storageOptions: ["冷藏", "冷冻", "常温"],
-    categoryOptions: ["水果", "蔬菜", "肉类", "蛋类", "饮料", "速食", "甜品", "其他"],
+    storageOptions: [],
+    storageIndex: 0,
+    categoryOptions: INVENTORY_CATEGORIES,
     unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"],
     emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"]
   },
@@ -17,6 +18,10 @@ Page({
     const id = options.id
     this.setData({ id })
     this.loadFood(id)
+  },
+
+  onShow() {
+    this.syncStorageOptions()
   },
 
   loadFood(id) {
@@ -30,23 +35,66 @@ Page({
       return
     }
 
+    this.setData(
+      {
+        item: {
+          ...item,
+          storageLabel: this.getStorageLabel(item.storage, this.data.storageOptions)
+        },
+        form: { ...item },
+        isEditing: false
+      },
+      () => {
+        this.syncStorageOptions()
+      }
+    )
+  },
+
+  getStorageLabel(storageValue, storageOptions = this.data.storageOptions) {
+    const match = storageOptions.find(option => option.value === storageValue || option.type === storageValue || option.name === storageValue)
+    return match ? match.label : storageValue || "暂无"
+  },
+
+  syncStorageOptions() {
+    const storageOptions = getFridgeStorageOptions()
+    const currentStorage = this.data.form.storage || (this.data.item && this.data.item.storage) || (storageOptions[0] && storageOptions[0].value) || ""
+    let storageIndex = storageOptions.findIndex(option => option.value === currentStorage || option.type === currentStorage || option.name === currentStorage)
+
+    if (storageIndex < 0) {
+      storageIndex = 0
+    }
+
     this.setData({
-      item,
-      form: { ...item }
+      storageOptions,
+      storageIndex,
+      "form.storage": currentStorage,
+      item: this.data.item
+        ? {
+            ...this.data.item,
+            storageLabel: this.getStorageLabel(currentStorage, storageOptions)
+          }
+        : this.data.item
     })
   },
 
   startEdit() {
-    this.setData({
-      isEditing: true,
-      form: { ...this.data.item }
-    })
+    this.setData(
+      {
+        isEditing: true,
+        form: { ...this.data.item }
+      },
+      () => {
+        this.syncStorageOptions()
+      }
+    )
   },
 
   cancelEdit() {
     this.setData({
       isEditing: false,
       form: { ...this.data.item }
+    }, () => {
+      this.syncStorageOptions()
     })
   },
 
@@ -66,8 +114,17 @@ Page({
   },
 
   onStorageChange(e) {
+    const storageIndex = Number(e.detail.value)
+    const selectedStorage = this.data.storageOptions[storageIndex]
+
+    if (!selectedStorage) {
+      return
+    }
+
     this.setData({
-      "form.storage": this.data.storageOptions[e.detail.value]
+      storageIndex,
+      "form.storage": selectedStorage.value,
+      "item.storageLabel": selectedStorage.label
     })
   },
 
@@ -121,7 +178,10 @@ Page({
     })
 
     this.setData({
-      item: updated,
+      item: {
+        ...updated,
+        storageLabel: this.getStorageLabel(updated.storage, this.data.storageOptions)
+      },
       form: { ...updated },
       isEditing: false
     })

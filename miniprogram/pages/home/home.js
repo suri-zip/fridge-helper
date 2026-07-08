@@ -1,5 +1,5 @@
 const { getInventory } = require("../../services/inventory")
-const inventory = getInventory()
+const { getFridgeAreas, setActiveArea } = require("../../services/fridgeProfile")
 
 Page({
   data: {
@@ -14,13 +14,7 @@ Page({
   onShow() {
     const inventory = getInventory()
     const expiringItems = inventory.filter(item => item.status === "warning" || item.status === "danger")
-
-    const fridgeAreas = [
-      { name: "冷藏", icon: "🧊", count: inventory.filter(item => item.storage === "冷藏").length },
-      { name: "冷冻", icon: "❄️", count: inventory.filter(item => item.storage === "冷冻").length },
-      { name: "常温", icon: "🥫", count: inventory.filter(item => item.storage === "常温").length },
-      { name: "全部", icon: "📦", count: inventory.length }
-    ]
+    const fridgeAreas = getFridgeAreas()
 
     this.setData({
       expiringItems,
@@ -29,13 +23,19 @@ Page({
   },
 
   goInventory(e) {
-    const category = e.currentTarget.dataset.category || "全部"
+    const areaId = e.currentTarget.dataset.areaId
+    const areaType = e.currentTarget.dataset.areaType || "全部"
+
+    if (areaId) {
+      setActiveArea(areaId)
+    }
+
     wx.switchTab({
       url: "/pages/inventory/inventory",
       success() {
         const page = getCurrentPages().pop()
         if (page) {
-          page.setCategory(category)
+          page.setArea({ areaId, areaType })
         }
       }
     })

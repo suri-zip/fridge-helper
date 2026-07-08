@@ -50,8 +50,8 @@
 
     <view class="field">
       <view class="label">存放位置</view>
-      <picker range="{{storageOptions}}" bindchange="onStorageChange">
-        <view class="picker">{{form.storage}}</view>
+      <picker range="{{storageOptions}}" range-key="label" value="{{storageIndex}}" bindchange="onStorageChange">
+        <view class="picker">{{storageOptions[storageIndex] ? storageOptions[storageIndex].label : '请选择存放位置'}}</view>
       </picker>
     </view>
 

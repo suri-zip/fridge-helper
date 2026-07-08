@@ -1,4 +1,100 @@
-<view class="container">
-  <view class="section-title">我的</view>
-  <view class="card">这里之后放家庭成员和设置。</view>
+<view class="container profile-page">
+  <view class="hero card">
+    <view class="hero-top">
+      <view>
+        <view class="hero-label">家庭管理</view>
+        <view class="hero-title">{{familyName}}</view>
+        <view class="hero-sub">查看成员、邀请家人，并按你家冰箱结构管理分区</view>
+      </view>
+      <view class="hero-badge">{{members.length}} 人</view>
+    </view>
+
+    <view class="invite-panel">
+      <view class="invite-label">邀请码</view>
+      <view class="invite-code">{{inviteCode}}</view>
+      <view class="invite-actions">
+        <button class="action-btn primary" bindtap="copyInviteCode">复制邀请码</button>
+        <button class="action-btn ghost" bindtap="regenerateInviteCode">重新生成</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-title">家庭成员</view>
+  <view class="card member-card">
+    <block wx:for="{{members}}" wx:key="id">
+      <view class="member-item">
+        <view class="member-avatar">{{item.avatar}}</view>
+        <view class="member-meta">
+          <view class="member-name-row">
+            <view class="member-name">{{item.name}}</view>
+            <view class="member-role">{{item.role}}</view>
+          </view>
+          <view class="member-status">{{item.status}}</view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-title">邀请家人加入</view>
+  <view class="card invite-card">
+    <view class="invite-tip">把邀请码发给家人，加入后就能一起维护同一个冰箱库存。</view>
+    <view class="invite-code large">{{inviteCode}}</view>
+    <view class="invite-actions">
+      <button class="action-btn primary" bindtap="copyInviteCode">复制并分享</button>
+      <button class="action-btn ghost" bindtap="regenerateInviteCode">更新邀请码</button>
+    </view>
+  </view>
+
+  <view class="section-title">冰箱区域管理</view>
+  <view class="card area-form-card">
+    <view class="form-row">
+      <input
+        class="area-input"
+        placeholder="例如：冷藏上层、调味区"
+        value="{{newAreaName}}"
+        bindinput="onAreaNameInput"
+      />
+      <picker mode="selector" range="{{areaTypes}}" value="{{newAreaTypeIndex}}" bindchange="onAreaTypeChange">
+        <view class="area-picker">{{areaTypes[newAreaTypeIndex]}}</view>
+      </picker>
+    </view>
+    <view class="area-form-actions">
+      <button class="action-btn primary full" bindtap="addArea">添加新区域</button>
+    </view>
+  </view>
+
+  <view class="area-list">
+    <block wx:for="{{areas}}" wx:key="id">
+      <view class="area-card {{activeAreaId === item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="openAreaEditor">
+        <view class="area-card-top">
+          <view class="area-icon">{{item.icon}}</view>
+        </view>
+        <view class="area-name">{{item.name}}</view>
+        <view class="area-type">{{item.type}}</view>
+        <view class="area-actions">
+          <view class="area-hint">点击编辑区域</view>
+          <button class="delete-btn" data-id="{{item.id}}" catchtap="deleteArea">删除</button>
+        </view>
+      </view>
+
+      <view wx:if="{{editingAreaId === item.id}}" class="card area-edit-card area-edit-inline">
+        <view class="section-subtitle">编辑区域</view>
+        <view class="form-row">
+          <input
+            class="area-input"
+            placeholder="区域名称"
+            value="{{editingAreaName}}"
+            bindinput="onEditingAreaNameInput"
+          />
+          <picker mode="selector" range="{{areaTypes}}" value="{{editingAreaTypeIndex}}" bindchange="onEditingAreaTypeChange">
+            <view class="area-picker">{{areaTypes[editingAreaTypeIndex]}}</view>
+          </picker>
+        </view>
+        <view class="area-form-actions two-btns">
+          <button class="action-btn ghost full" bindtap="cancelAreaEdit">取消</button>
+          <button class="action-btn primary full" bindtap="saveAreaEdit">保存修改</button>
+        </view>
+      </view>
+    </block>
+  </view>
 </view>

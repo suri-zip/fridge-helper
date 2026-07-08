@@ -4,7 +4,7 @@
 
     <view class="hero-info">
       <view class="food-title">{{item.name}}</view>
-      <view class="food-sub">{{item.storage}} · {{item.category}}</view>
+      <view class="food-sub">{{item.storageLabel || item.storage}} · {{item.category}}</view>
       <view class="expire-tag {{item.status}}">{{item.expireText}}</view>
     </view>
   </view>
@@ -18,7 +18,7 @@
 
       <view class="info-row">
         <view class="info-label">存放位置</view>
-        <view class="info-value">{{item.storage}}</view>
+        <view class="info-value">{{item.storageLabel || item.storage}}</view>
       </view>
 
       <view class="info-row">
@@ -80,8 +80,8 @@
 
       <view class="field">
         <view class="label">存放位置</view>
-        <picker range="{{storageOptions}}" bindchange="onStorageChange">
-          <view class="picker">{{form.storage}}</view>
+        <picker range="{{storageOptions}}" range-key="label" value="{{storageIndex}}" bindchange="onStorageChange">
+          <view class="picker">{{storageOptions[storageIndex] ? storageOptions[storageIndex].label : '请选择存放位置'}}</view>
         </picker>
       </view>
 
