@@ -1,100 +1,161 @@
 <view class="container profile-page">
-  <view class="hero card">
-    <view class="hero-top">
-      <view>
-        <view class="hero-label">家庭管理</view>
-        <view class="hero-title">{{familyName}}</view>
-        <view class="hero-sub">查看成员、邀请家人，并按你家冰箱结构管理分区</view>
+  <block wx:if="{{hasFamily}}">
+    <view class="hero card">
+      <view class="hero-top">
+        <view>
+          <view class="hero-label">家庭管理</view>
+          <view class="hero-title">{{familyName}}</view>
+          <view class="hero-sub">当前账号可以编辑自己的资料，其他家庭成员仅展示</view>
+        </view>
+        <view class="hero-badge">{{members.length}} 人</view>
       </view>
-      <view class="hero-badge">{{members.length}} 人</view>
+
+      <view class="invite-panel">
+        <view class="invite-label">邀请码</view>
+        <view class="invite-code">{{inviteCode}}</view>
+        <view class="invite-actions">
+          <button class="action-btn primary" bindtap="copyInviteCode">复制邀请码</button>
+          <button class="action-btn danger" bindtap="leaveFamily">退出家庭</button>
+        </view>
+      </view>
     </view>
 
-    <view class="invite-panel">
-      <view class="invite-label">邀请码</view>
-      <view class="invite-code">{{inviteCode}}</view>
-      <view class="invite-actions">
-        <button class="action-btn primary" bindtap="copyInviteCode">复制邀请码</button>
-        <button class="action-btn ghost" bindtap="regenerateInviteCode">重新生成</button>
-      </view>
-    </view>
-  </view>
-
-  <view class="section-title">家庭成员</view>
-  <view class="card member-card">
-    <block wx:for="{{members}}" wx:key="id">
-      <view class="member-item">
-        <view class="member-avatar">{{item.avatar}}</view>
+    <view class="section-title">我的资料</view>
+    <view class="card member-card">
+      <view wx:if="{{currentMember}}" class="member-item member-current-item">
+        <view class="member-avatar">{{currentMember.avatar}}</view>
         <view class="member-meta">
           <view class="member-name-row">
-            <view class="member-name">{{item.name}}</view>
-            <view class="member-role">{{item.role}}</view>
+            <view class="member-name">{{currentMember.name}}</view>
+            <view class="member-role">{{currentMember.role}}</view>
           </view>
-          <view class="member-status">{{item.status}}</view>
+          <view class="member-status">{{currentMember.status}}</view>
         </view>
-      </view>
-    </block>
-  </view>
-
-  <view class="section-title">邀请家人加入</view>
-  <view class="card invite-card">
-    <view class="invite-tip">把邀请码发给家人，加入后就能一起维护同一个冰箱库存。</view>
-    <view class="invite-code large">{{inviteCode}}</view>
-    <view class="invite-actions">
-      <button class="action-btn primary" bindtap="copyInviteCode">复制并分享</button>
-      <button class="action-btn ghost" bindtap="regenerateInviteCode">更新邀请码</button>
-    </view>
-  </view>
-
-  <view class="section-title">冰箱区域管理</view>
-  <view class="card area-form-card">
-    <view class="form-row">
-      <input
-        class="area-input"
-        placeholder="例如：冷藏上层、调味区"
-        value="{{newAreaName}}"
-        bindinput="onAreaNameInput"
-      />
-      <picker mode="selector" range="{{areaTypes}}" value="{{newAreaTypeIndex}}" bindchange="onAreaTypeChange">
-        <view class="area-picker">{{areaTypes[newAreaTypeIndex]}}</view>
-      </picker>
-    </view>
-    <view class="area-form-actions">
-      <button class="action-btn primary full" bindtap="addArea">添加新区域</button>
-    </view>
-  </view>
-
-  <view class="area-list">
-    <block wx:for="{{areas}}" wx:key="id">
-      <view class="area-card {{activeAreaId === item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="openAreaEditor">
-        <view class="area-card-top">
-          <view class="area-icon">{{item.icon}}</view>
-        </view>
-        <view class="area-name">{{item.name}}</view>
-        <view class="area-type">{{item.type}}</view>
-        <view class="area-actions">
-          <view class="area-hint">点击编辑区域</view>
-          <button class="delete-btn" data-id="{{item.id}}" catchtap="deleteArea">删除</button>
-        </view>
+        <view class="member-current-badge">当前账号</view>
       </view>
 
-      <view wx:if="{{editingAreaId === item.id}}" class="card area-edit-card area-edit-inline">
-        <view class="section-subtitle">编辑区域</view>
+      <view class="member-edit-form">
         <view class="form-row">
           <input
             class="area-input"
-            placeholder="区域名称"
-            value="{{editingAreaName}}"
-            bindinput="onEditingAreaNameInput"
+            placeholder="你的名称"
+            value="{{memberName}}"
+            bindinput="onMemberNameInput"
           />
-          <picker mode="selector" range="{{areaTypes}}" value="{{editingAreaTypeIndex}}" bindchange="onEditingAreaTypeChange">
-            <view class="area-picker">{{areaTypes[editingAreaTypeIndex]}}</view>
+          <picker mode="selector" range="{{memberRoleOptions}}" value="{{memberRoleIndex}}" bindchange="onMemberRoleChange">
+            <view class="area-picker">{{memberRoleOptions[memberRoleIndex]}}</view>
           </picker>
         </view>
+
+        <view class="form-row">
+          <picker mode="selector" range="{{memberAvatarOptions}}" value="{{memberAvatarIndex}}" bindchange="onMemberAvatarChange">
+            <view class="area-picker">{{memberAvatarOptions[memberAvatarIndex]}}</view>
+          </picker>
+          <input
+            class="area-input"
+            placeholder="状态，比如：在线 / 已加入 3 天"
+            value="{{memberStatus}}"
+            bindinput="onMemberStatusInput"
+          />
+        </view>
+
         <view class="area-form-actions two-btns">
-          <button class="action-btn ghost full" bindtap="cancelAreaEdit">取消</button>
-          <button class="action-btn primary full" bindtap="saveAreaEdit">保存修改</button>
+          <button class="action-btn ghost full" bindtap="resetCurrentMemberEditor">重置</button>
+          <button class="action-btn primary full" bindtap="saveMemberEdit">保存资料</button>
         </view>
       </view>
-    </block>
-  </view>
+    </view>
+
+    <view class="section-title">家庭成员</view>
+    <view class="card member-card">
+      <block wx:if="{{otherMembers.length}}">
+        <view wx:for="{{otherMembers}}" wx:key="id" class="member-item member-readonly-item">
+          <view class="member-avatar">{{item.avatar}}</view>
+          <view class="member-meta">
+            <view class="member-name-row">
+              <view class="member-name">{{item.name}}</view>
+              <view class="member-role">{{item.role}}</view>
+            </view>
+            <view class="member-status">{{item.status}}</view>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="member-readonly-note">暂时没有其他成员。家庭成员会在他们自己的账号里分别维护。</view>
+    </view>
+
+    <view class="section-title">冰箱区域管理</view>
+    <view class="card area-form-card">
+      <view class="form-row">
+        <input
+          class="area-input"
+          placeholder="例如：冷藏上层、调味区"
+          value="{{newAreaName}}"
+          bindinput="onAreaNameInput"
+        />
+        <picker mode="selector" range="{{areaTypes}}" value="{{newAreaTypeIndex}}" bindchange="onAreaTypeChange">
+          <view class="area-picker">{{areaTypes[newAreaTypeIndex]}}</view>
+        </picker>
+      </view>
+      <view class="area-form-actions">
+        <button class="action-btn primary full" bindtap="addArea">添加新区域</button>
+      </view>
+    </view>
+
+    <view class="area-list">
+      <block wx:for="{{areas}}" wx:key="id">
+        <view class="area-card {{activeAreaId === item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="openAreaEditor">
+          <view class="area-card-top">
+            <view class="area-icon">{{item.icon}}</view>
+          </view>
+          <view class="area-name">{{item.name}}</view>
+          <view class="area-type">{{item.type}}</view>
+          <view class="area-actions">
+            <view class="area-hint">点击编辑区域</view>
+            <button class="delete-btn" data-id="{{item.id}}" catchtap="deleteArea">删除</button>
+          </view>
+        </view>
+
+        <view wx:if="{{editingAreaId === item.id}}" class="card area-edit-card area-edit-inline">
+          <view class="section-subtitle">编辑区域</view>
+          <view class="form-row">
+            <input
+              class="area-input"
+              placeholder="区域名称"
+              value="{{editingAreaName}}"
+              bindinput="onEditingAreaNameInput"
+            />
+            <picker mode="selector" range="{{areaTypes}}" value="{{editingAreaTypeIndex}}" bindchange="onEditingAreaTypeChange">
+              <view class="area-picker">{{areaTypes[editingAreaTypeIndex]}}</view>
+            </picker>
+          </view>
+          <view class="area-form-actions two-btns">
+            <button class="action-btn ghost full" bindtap="cancelAreaEdit">取消</button>
+            <button class="action-btn primary full" bindtap="saveAreaEdit">保存修改</button>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="card empty-state-card">
+      <view class="empty-state-title">你还没有加入任何家庭</view>
+      <view class="empty-state-text">加入家庭后，才能看到家庭成员、邀请信息和冰箱分区管理。</view>
+
+      <view class="empty-state-actions">
+        <button class="action-btn primary full" bindtap="createFamily">创建家庭</button>
+      </view>
+
+      <view class="join-box">
+        <view class="section-subtitle">加入家庭</view>
+        <input
+          class="area-input join-input"
+          placeholder="请输入邀请码"
+          value="{{joinInviteCode}}"
+          bindinput="onJoinInviteInput"
+        />
+        <button class="action-btn ghost full join-btn" bindtap="joinFamily">加入家庭</button>
+      </view>
+    </view>
+  </block>
 </view>

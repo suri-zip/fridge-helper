@@ -1,4 +1,5 @@
-// pages/recipe/recipe.js
+const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
+
 Page({
 
   /**
@@ -26,7 +27,17 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    const loginState = wx.getStorageSync(LOGIN_STATE_KEY)
 
+    if (!loginState || !loginState.family) {
+      wx.hideTabBar()
+      wx.reLaunch({
+        url: "/pages/profile/profile"
+      })
+      return
+    }
+
+    wx.showTabBar()
   },
 
   /**

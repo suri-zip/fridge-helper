@@ -1,6 +1,8 @@
 const { getInventory, INVENTORY_CATEGORIES } = require("../../services/inventory")
 const { getFridgeAreas, getStoredProfile, setActiveArea } = require("../../services/fridgeProfile")
 
+const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
+
 Page({
     data: {
         inventory: [],
@@ -14,6 +16,18 @@ Page({
     },
 
     onShow() {
+        const loginState = wx.getStorageSync(LOGIN_STATE_KEY)
+
+        if (!loginState || !loginState.family) {
+            wx.hideTabBar()
+            wx.reLaunch({
+                url: "/pages/profile/profile"
+            })
+            return
+        }
+
+        wx.showTabBar()
+
         const inventory = getInventory()
         const profile = getStoredProfile()
         const fridgeAreas = getFridgeAreas()

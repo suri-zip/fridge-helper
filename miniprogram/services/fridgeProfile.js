@@ -17,6 +17,7 @@ function getDefaultProfile() {
   return {
     familyName: "我的家庭",
     inviteCode: createInviteCode(),
+    currentMemberId: "member-1",
     members: [
       {
         id: "member-1",
@@ -64,6 +65,14 @@ function getDefaultProfile() {
   }
 }
 
+function getCurrentMember(profile) {
+  if (!profile || !Array.isArray(profile.members) || !profile.members.length) {
+    return null
+  }
+
+  return profile.members.find(member => member.id === profile.currentMemberId) || profile.members[0]
+}
+
 function getStoredProfile() {
   const storedProfile = wx.getStorageSync(PROFILE_STORAGE_KEY)
 
@@ -73,12 +82,61 @@ function getStoredProfile() {
     return defaultProfile
   }
 
+  if (!storedProfile.currentMemberId) {
+    const nextProfile = {
+      ...storedProfile,
+      currentMemberId: storedProfile.members[0] && storedProfile.members[0].id ? storedProfile.members[0].id : ""
+    }
+
+    wx.setStorageSync(PROFILE_STORAGE_KEY, nextProfile)
+    return nextProfile
+  }
+
+  if (!storedProfile.members.find(member => member.id === storedProfile.currentMemberId)) {
+    const nextProfile = {
+      ...storedProfile,
+      currentMemberId: storedProfile.members[0] && storedProfile.members[0].id ? storedProfile.members[0].id : ""
+    }
+
+    wx.setStorageSync(PROFILE_STORAGE_KEY, nextProfile)
+    return nextProfile
+  }
+
   return storedProfile
 }
 
 function saveProfile(profile) {
   wx.setStorageSync(PROFILE_STORAGE_KEY, profile)
   return profile
+}
+
+function getEmptyLocalProfile() {
+  return {
+    familyName: "",
+    inviteCode: "",
+    currentMemberId: "",
+    members: [],
+    areas: [],
+    activeAreaId: ""
+  }
+}
+
+function familyToLocalProfile(family, currentMemberId) {
+  if (!family) {
+    return null
+  }
+
+  const areas = Array.isArray(family.areas) ? family.areas : []
+  const members = Array.isArray(family.members) ? family.members : []
+
+  return {
+    familyName: family.familyName || "我的家庭",
+    inviteCode: family.inviteCode || createInviteCode(),
+    currentMemberId: currentMemberId || family.currentMemberId || (members[0] && members[0].id) || "",
+    members,
+    areas,
+    activeAreaId: family.activeAreaId || (areas[0] && areas[0].id) || ""
+  }
 }
 
 function getFridgeAreas() {
@@ -137,6 +195,59 @@ function updateArea(areaId, updates) {
   })
 }
 
+function updateMember(memberId, updates) {
+  const profile = getStoredProfile()
+  const nextMembers = profile.members.map(member => {
+    if (member.id !== memberId) {
+      return member
+    }
+
+    return {
+      ...member,
+      ...updates
+    }
+  })
+
+  return saveProfile({
+    ...profile,
+    members: nextMembers
+  })
+}
+
+function updateCurrentMember(updates) {
+  const profile = getStoredProfile()
+  const currentMember = getCurrentMember(profile)
+
+  if (!currentMember) {
+    return profile
+  }
+
+  return updateMember(currentMember.id, updates)
+}
+
+function leaveFamily() {
+  const profile = getStoredProfile()
+  const currentMember = getCurrentMember(profile)
+
+  if (!currentMember) {
+    return profile
+  }
+
+  return saveProfile({
+    ...profile,
+    familyName: profile.familyName || "我的家庭",
+    inviteCode: createInviteCode(),
+    currentMemberId: currentMember.id,
+    members: [
+      {
+        ...currentMember,
+        role: "户主",
+        status: "当前账号"
+      }
+    ]
+  })
+}
+
 function removeArea(areaId) {
   const profile = getStoredProfile()
   const targetArea = profile.areas.find(area => area.id === areaId)
@@ -177,10 +288,16 @@ module.exports = {
   getDefaultProfile,
   getStoredProfile,
   saveProfile,
+  getEmptyLocalProfile,
+  getCurrentMember,
+  familyToLocalProfile,
   getFridgeAreas,
   getFridgeStorageOptions,
   addArea,
   updateArea,
+  updateMember,
+  updateCurrentMember,
+  leaveFamily,
   removeArea,
   setActiveArea
 }

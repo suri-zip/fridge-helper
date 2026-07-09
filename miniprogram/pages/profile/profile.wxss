@@ -102,6 +102,11 @@
 	color: #0f3551;
 }
 
+.action-btn.danger {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+
 .action-btn.full {
 	width: 100%;
 }
@@ -164,6 +169,75 @@
 	margin-top: 6rpx;
 	font-size: 24rpx;
 	color: #6b7280;
+}
+
+.member-current-badge {
+	padding: 10rpx 16rpx;
+	border-radius: 999rpx;
+	background: #dbeafe;
+	color: #2563eb;
+	font-size: 22rpx;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.member-current-item {
+	padding-bottom: 18rpx;
+	border-bottom: 1rpx solid #edf2f7;
+}
+
+.member-edit-form {
+	padding-top: 22rpx;
+}
+
+.member-readonly-item {
+	padding: 22rpx 0;
+}
+
+.member-readonly-note {
+	padding: 18rpx 0 6rpx;
+	font-size: 24rpx;
+	line-height: 1.6;
+	color: #6b7280;
+}
+
+.empty-state-card {
+	padding: 40rpx 28rpx;
+	text-align: center;
+	background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.empty-state-title {
+	font-size: 36rpx;
+	font-weight: 800;
+	color: #0f3551;
+}
+
+.empty-state-text {
+	margin-top: 16rpx;
+	font-size: 26rpx;
+	line-height: 1.7;
+	color: #5b6472;
+}
+
+.empty-state-actions {
+	margin-top: 28rpx;
+}
+
+.join-box {
+	margin-top: 32rpx;
+	padding-top: 28rpx;
+	border-top: 1rpx solid #e8eef5;
+	text-align: left;
+}
+
+.join-input {
+	width: 100%;
+	margin-top: 12rpx;
+}
+
+.join-btn {
+	margin-top: 18rpx;
 }
 
 .invite-card {

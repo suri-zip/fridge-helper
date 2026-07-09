@@ -2,23 +2,36 @@ const { addFood, INVENTORY_CATEGORIES } = require("../../services/inventory")
 const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
 const { getDaysLeft } = require("../../utils/date")
 
+const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
+
 Page({
   data: {
-    form: {
+    form: {},
+    emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"],
+    storageOptions: [],
+    storageIndex: 0,
+    categoryOptions: INVENTORY_CATEGORIES,
+    unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"]
+  },
+
+  getInitialForm() {
+    return {
       name: "",
       emoji: "🍽️",
       category: "其他",
       storage: "",
       quantity: "",
       unit: "个",
-      purchaseDate: "",
+      purchaseDate: this.getToday(),
       expireDate: ""
-    },
-    emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"],
-    storageOptions: [],
-    storageIndex: 0,
-    categoryOptions: INVENTORY_CATEGORIES,
-    unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"]
+    }
+  },
+
+  resetForm() {
+    this.setData({
+      form: this.getInitialForm(),
+      storageIndex: 0
+    })
   },
 
   getToday() {
@@ -46,14 +59,24 @@ Page({
   },
 
   onLoad() {
-    this.setData({
-      "form.purchaseDate": this.getToday()
-    })
-
+    this.resetForm()
     this.syncStorageOptions()
   },
 
   onShow() {
+    const loginState = wx.getStorageSync(LOGIN_STATE_KEY)
+
+    if (!loginState || !loginState.family) {
+      wx.hideTabBar()
+      wx.reLaunch({
+        url: "/pages/profile/profile"
+      })
+      return
+    }
+
+    wx.showTabBar()
+
+    this.resetForm()
     this.syncStorageOptions()
   },
 
