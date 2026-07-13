@@ -1,5 +1,7 @@
 <view class="container profile-page">
+
   <block wx:if="{{hasFamily}}">
+  
     <view class="hero card">
       <view class="hero-top">
         <view>
