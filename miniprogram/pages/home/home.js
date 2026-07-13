@@ -1,5 +1,5 @@
 const { getInventory } = require("../../services/inventory")
-const { getFridgeAreas, setActiveArea } = require("../../services/fridgeProfile")
+const { refreshFamilyProfileFromCloud, setActiveArea } = require("../../services/fridgeProfile")
 
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
@@ -10,10 +10,11 @@ Page({
     recentLogs: [
       "妈妈 买了草莓",
       "你 吃掉了 2 个鸡蛋"
-    ]
+    ],
+    loading: false
   },
 
-  onShow() {
+  async onShow() {
     const loginState = wx.getStorageSync(LOGIN_STATE_KEY)
 
     if (!loginState || !loginState.family) {
@@ -26,14 +27,44 @@ Page({
 
     wx.showTabBar()
 
-    const inventory = getInventory()
-    const expiringItems = inventory.filter(item => item.status === "warning" || item.status === "danger")
-    const fridgeAreas = getFridgeAreas()
-
     this.setData({
-      expiringItems,
-      fridgeAreas
+      loading: true
     })
+
+    try {
+      const [inventory, profileResult] = await Promise.all([
+        getInventory(),
+        refreshFamilyProfileFromCloud()
+      ])
+
+      const profile = profileResult.profile
+
+      const expiringItems = inventory.filter(item => item.status === "warning" || item.status === "danger")
+      const fridgeAreas = Array.isArray(profile.areas)
+        ? profile.areas.map(area => ({
+            ...area,
+            count: inventory.filter(item => {
+              return item.storage === area.id || item.storage === area.type || item.storage === area.name
+            }).length
+          }))
+        : []
+
+      this.setData({
+        expiringItems,
+        fridgeAreas
+      })
+    } catch (err) {
+      console.error("读取首页数据失败：", err)
+
+      wx.showToast({
+        title: err.message || "读取首页数据失败",
+        icon: "none"
+      })
+    } finally {
+      this.setData({
+        loading: false
+      })
+    }
   },
 
   goInventory(e) {

@@ -1,16 +1,18 @@
-const { addFood, INVENTORY_CATEGORIES } = require("../../services/inventory")
-const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
+const { addFood } = require("../../services/inventory")
+const { FOOD_CATEGORIES } = require("../../services/foodCategories")
+const { getFridgeStorageOptions, refreshFamilyProfileFromCloud } = require("../../services/fridgeProfile")
 const { getDaysLeft } = require("../../utils/date")
 
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
 Page({
   data: {
+    saving: false,
     form: {},
     emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"],
     storageOptions: [],
     storageIndex: 0,
-    categoryOptions: INVENTORY_CATEGORIES,
+    categoryOptions: FOOD_CATEGORIES,
     unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"]
   },
 
@@ -34,6 +36,24 @@ Page({
     })
   },
 
+  async loadStorageOptions() {
+    try {
+      await refreshFamilyProfileFromCloud()
+    } catch (err) {
+      console.error("刷新家庭区域失败：", err)
+    }
+
+    const storageOptions = getFridgeStorageOptions()
+    const storageIndex = storageOptions.length > 0 ? 0 : 0
+    const storage = storageOptions[storageIndex] ? storageOptions[storageIndex].value : ""
+
+    this.setData({
+      storageOptions,
+      storageIndex,
+      "form.storage": storage || this.data.form.storage
+    })
+  },
+
   getToday() {
     const d = new Date()
     const y = d.getFullYear()
@@ -42,25 +62,73 @@ Page({
     return `${y}-${m}-${day}`
   },
 
-  syncStorageOptions() {
-    const storageOptions = getFridgeStorageOptions()
-    const currentStorage = this.data.form.storage || (storageOptions[0] && storageOptions[0].value) || ""
-    let storageIndex = storageOptions.findIndex(option => option.value === currentStorage || option.type === currentStorage || option.name === currentStorage)
+  async onSave() {
+    const form = this.data.form
 
-    if (storageIndex < 0) {
-      storageIndex = 0
+    if (!form.name.trim()) {
+      wx.showToast({
+        title: "请输入食材名称",
+        icon: "none"
+      })
+      return
+    }
+
+    if (
+      form.quantity === "" ||
+      Number(form.quantity) < 0
+    ) {
+      wx.showToast({
+        title: "请输入正确数量",
+        icon: "none"
+      })
+      return
     }
 
     this.setData({
-      storageOptions,
-      storageIndex,
-      "form.storage": currentStorage || (storageOptions[0] && storageOptions[0].value) || ""
+      saving: true
     })
+
+    try {
+      await addFood({
+        name: form.name.trim(),
+        emoji: form.emoji || "🍽️",
+        category: form.category,
+        storage: form.storage,
+        quantity: Number(form.quantity),
+        unit: form.unit,
+        purchaseDate: form.purchaseDate,
+        expireDate: form.expireDate || "",
+        note: form.note || ""
+      })
+
+      wx.showToast({
+        title: "添加成功",
+        icon: "success"
+      })
+
+      setTimeout(() => {
+        wx.switchTab({
+          url: "/pages/inventory/inventory"
+        })
+      }, 500)
+    } catch (err) {
+      console.error("添加食材失败：", err)
+
+      wx.showToast({
+        title: err.message || "添加失败",
+        icon: "none"
+      })
+    } finally {
+      this.setData({
+        saving: false
+      })
+    }
   },
+
 
   onLoad() {
     this.resetForm()
-    this.syncStorageOptions()
+    this.loadStorageOptions()
   },
 
   onShow() {
@@ -77,7 +145,7 @@ Page({
     wx.showTabBar()
 
     this.resetForm()
-    this.syncStorageOptions()
+    this.loadStorageOptions()
   },
 
   onInput(e) {
@@ -133,43 +201,6 @@ Page({
     })
   },
 
-  onSave() {
-    const form = this.data.form
-
-    if (!form.name.trim()) {
-      wx.showToast({
-        title: "请填写食材名",
-        icon: "none"
-      })
-      return
-    }
-
-    if (!form.quantity) {
-      wx.showToast({
-        title: "请填写数量",
-        icon: "none"
-      })
-      return
-    }
-
-    addFood({
-      ...form,
-      quantity: Number(form.quantity),
-      purchaseDate: form.purchaseDate,
-      expireDate: form.expireDate || ""
-    })
-
-    wx.showToast({
-      title: "添加成功",
-      icon: "success"
-    })
-
-    setTimeout(() => {
-      wx.switchTab({
-        url: "/pages/inventory/inventory"
-      })
-    }, 500)
-  },
 
   getStatus(expireDate) {
     if (!expireDate) return "fresh"

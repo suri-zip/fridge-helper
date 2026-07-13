@@ -5,7 +5,8 @@ const {
 	familyToLocalProfile,
 	getEmptyLocalProfile,
 	getFridgeAreas,
-	addArea,
+	refreshFamilyProfileFromCloud,
+	addArea: addAreaToProfile,
 	updateArea,
 	updateMember,
 	removeArea
@@ -61,7 +62,7 @@ Page({
 		})
 	},
 
-	applyFamilyProfile(family, openid) {
+	async applyFamilyProfile(family, openid) {
 		if (!family) {
 			persistProfile(getEmptyLocalProfile())
 			wx.hideTabBar()
@@ -85,6 +86,7 @@ Page({
 
 		const profile = getStoredProfile()
 		const currentMember = getCurrentMember(profile)
+		const areas = await getFridgeAreas()
 		wx.showTabBar()
 
 		this.setData({
@@ -95,7 +97,7 @@ Page({
 			currentMember,
 			otherMembers: profile.members.filter(member => !currentMember || member.id !== currentMember.id),
 			members: profile.members,
-			areas: getFridgeAreas(),
+			areas,
 			activeAreaId: profile.activeAreaId || (profile.areas[0] && profile.areas[0].id) || "",
 			editingAreaId: "",
 			editingAreaName: "",
@@ -107,45 +109,20 @@ Page({
 		})
 	},
 
-	loadPageState() {
-		const loginState = this.getLoginState()
-
-		if (!loginState || !loginState.ready) {
-			this.ensureLoginState()
-				.then(res => {
-					const result = res.result || {}
-					const nextLoginState = {
-						ready: true,
-						openid: result.openid || "",
-						user: result.user || null,
-						family: result.family || null
-					}
-
-					this.storeLoginState(nextLoginState)
-
-					if (result.family) {
-						const localProfile = familyToLocalProfile(result.family, result.openid)
-
-						if (localProfile) {
-							persistProfile(localProfile)
-						}
-					}
-
-					this.applyFamilyProfile(nextLoginState.family, nextLoginState.openid)
-				})
-				.catch(() => {
-					this.storeLoginState({
-						ready: true,
-						openid: "",
-						user: null,
-						family: null
-					})
-					this.applyFamilyProfile(null)
-				})
-			return
+	async loadPageState() {
+		try {
+			const result = await refreshFamilyProfileFromCloud()
+			this.storeLoginState(result.loginState)
+			await this.applyFamilyProfile(result.loginState.family, result.loginState.openid)
+		} catch (err) {
+			this.storeLoginState({
+				ready: true,
+				openid: "",
+				user: null,
+				family: null
+			})
+			await this.applyFamilyProfile(null)
 		}
-
-		this.applyFamilyProfile(loginState.family, loginState.openid)
 	},
 
 	syncCurrentMemberEditor(profile) {
@@ -163,14 +140,15 @@ Page({
 		})
 	},
 
-	saveProfile(nextProfile) {
+	async saveProfile(nextProfile) {
 		persistProfile(nextProfile)
+		const areas = await getFridgeAreas()
 		this.setData({
 			hasFamily: true,
 			familyName: nextProfile.familyName,
 			inviteCode: nextProfile.inviteCode,
 			members: nextProfile.members,
-			areas: getFridgeAreas(),
+			areas,
 			activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || "",
 			editingAreaId: "",
 			editingAreaName: "",
@@ -195,10 +173,10 @@ Page({
 			}
 		}
 
-		this.applyFamilyProfile(loginState.family, loginState.openid)
+		return this.applyFamilyProfile(loginState.family, loginState.openid)
 	},
 
-	refreshFamilyFromCloud(result) {
+	async refreshFamilyFromCloud(result) {
 		const nextLoginState = {
 			ready: true,
 			openid: result.openid || "",
@@ -206,7 +184,7 @@ Page({
 			family: result.family || null
 		}
 
-		this.applyLoginState(nextLoginState)
+		await this.applyLoginState(nextLoginState)
 	},
 
 	copyInviteCode() {
@@ -341,7 +319,7 @@ Page({
 		})
 	},
 
-	addArea() {
+	async addArea() {
 		if (!this.data.hasFamily) {
 			return
 		}
@@ -357,17 +335,18 @@ Page({
 		}
 
 		const areaType = this.data.areaTypes[this.data.newAreaTypeIndex] || "自定义"
-		const nextProfile = addArea({
+		const nextProfile = await addAreaToProfile({
 			name: areaName,
 			type: areaType,
 			icon: areaType === "冷冻" ? "❄️" : areaType === "变温" ? "🌡️" : areaType === "门架" ? "🥛" : areaType === "抽屉" ? "🧺" : "🧊"
 		})
+		const areas = await getFridgeAreas()
 
 		this.setData({
 			familyName: nextProfile.familyName,
 			inviteCode: nextProfile.inviteCode,
 			members: nextProfile.members,
-			areas: getFridgeAreas(),
+			areas,
 			activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || ""
 		})
 
@@ -436,7 +415,7 @@ Page({
 		})
 	},
 
-	saveMemberEdit() {
+	async saveMemberEdit() {
 		if (!this.data.hasFamily) {
 			return
 		}
@@ -465,7 +444,7 @@ Page({
 			status: this.data.memberStatus.trim() || "已修改"
 		})
 
-		this.saveProfile(nextProfile)
+		await this.saveProfile(nextProfile)
 
 		wx.showToast({
 			title: "资料已更新",
@@ -505,7 +484,7 @@ Page({
 		})
 	},
 
-	saveAreaEdit() {
+	async saveAreaEdit() {
 		if (!this.data.hasFamily) {
 			return
 		}
@@ -525,17 +504,18 @@ Page({
 		}
 
 		const areaType = this.data.areaTypes[this.data.editingAreaTypeIndex] || "自定义"
-		const nextProfile = updateArea(this.data.editingAreaId, {
+		const nextProfile = await updateArea(this.data.editingAreaId, {
 			name: areaName,
 			type: areaType,
 			icon: areaType === "冷冻" ? "❄️" : areaType === "变温" ? "🌡️" : areaType === "门架" ? "🥛" : areaType === "抽屉" ? "🧺" : "🧊"
 		})
+		const areas = await getFridgeAreas()
 
 		this.setData({
 			familyName: nextProfile.familyName,
 			inviteCode: nextProfile.inviteCode,
 			members: nextProfile.members,
-			areas: getFridgeAreas(),
+			areas,
 			activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || "",
 			editingAreaId: "",
 			editingAreaName: "",
@@ -548,7 +528,7 @@ Page({
 		})
 	},
 
-	deleteArea(event) {
+	async deleteArea(event) {
 		if (!this.data.hasFamily) {
 			return
 		}
@@ -566,12 +546,12 @@ Page({
 			content: `确定删除「${targetArea.name}」吗？该区域里的食材也会一起删除。`,
 			confirmText: "删除",
 			confirmColor: "#dc2626",
-			success: res => {
+				success: async res => {
 				if (!res.confirm) {
 					return
 				}
 
-				const nextProfile = removeArea(id)
+					const nextProfile = await removeArea(id)
 
 				if (!nextProfile) {
 					wx.showToast({
@@ -581,11 +561,13 @@ Page({
 					return
 				}
 
-				this.setData({
+					const areas = await getFridgeAreas()
+
+					this.setData({
 					familyName: nextProfile.familyName,
 					inviteCode: nextProfile.inviteCode,
 					members: nextProfile.members,
-					areas: getFridgeAreas(),
+						areas,
 					activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || ""
 				})
 

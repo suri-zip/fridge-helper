@@ -1,71 +1,59 @@
 <view class="container">
+    <view class="section-title">库存分类</view>
 
-<view class="section-title">冰箱区域</view>
-
-<scroll-view
-    scroll-x
-    class="area-bar"
->
-
-    <block
-        wx:for="{{fridgeAreas}}"
-        wx:key="id"
-    >
-
+    <view class="mode-bar">
         <view
-            class="area-chip {{activeAreaId==item.id?'active':''}}"
-            data-area-id="{{item.id}}"
-            data-area-type="{{item.type}}"
-            bindtap="setArea"
+            class="mode-chip {{categoryMode=='area'?'active':''}}"
+            data-mode="area"
+            bindtap="switchCategoryMode"
         >
-            {{item.name}} · {{item.count}}
+            按冰箱区域分类
         </view>
 
-    </block>
-
-</scroll-view>
-
-<input
-    class="search"
-    placeholder="搜索食材..."
-    bindinput="onSearch"
-/>
-
-<scroll-view
-    scroll-x
-    class="category-bar"
->
-
-    <block
-        wx:for="{{categories}}"
-        wx:key="*this"
-    >
-
         <view
-            class="category {{currentCategory==item?'active':''}}"
-            data-category="{{item}}"
-            bindtap="changeCategory"
+            class="mode-chip {{categoryMode=='food'?'active':''}}"
+            data-mode="food"
+            bindtap="switchCategoryMode"
         >
-            {{item}}
+            按食物种类分类
         </view>
+    </view>
 
-    </block>
-
-</scroll-view>
-
-<view class="food-list">
-
-    <block
-        wx:for="{{displayList}}"
-        wx:key="id"
+    <scroll-view
+        scroll-x
+        class="category-bar"
     >
-        <view
-            data-id="{{item.id}}"
-            bindtap="onFoodTap"
-
+        <block
+            wx:for="{{categories}}"
+            wx:key="value"
         >
-            <food-card item="{{item}}" />
-        </view>
-    </block>
-</view>
+            <view
+                class="category {{currentCategory==item.value?'active':''}}"
+                data-category="{{item.value}}"
+                bindtap="changeCategory"
+            >
+                {{item.label}}{{categoryMode=='area' && item.value!='all' ? ' · ' + item.count : ''}}
+            </view>
+        </block>
+    </scroll-view>
+
+    <input
+        class="search"
+        placeholder="搜索食材..."
+        bindinput="onSearch"
+    />
+
+    <view class="food-list">
+        <block
+            wx:for="{{displayList}}"
+            wx:key="id"
+        >
+            <view
+                data-id="{{item.id}}"
+                bindtap="onFoodTap"
+            >
+                <food-card item="{{item}}" />
+            </view>
+        </block>
+    </view>
 </view>

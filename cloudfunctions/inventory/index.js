@@ -190,6 +190,28 @@ exports.main = async (event = {}) => {
         }
       }
 
+      case "deleteByStorage": {
+        const storageValues = Array.isArray(event.storageValues)
+          ? event.storageValues.map(value => String(value || "").trim()).filter(Boolean)
+          : []
+
+        if (!storageValues.length) {
+          throw new Error("INVALID_ACTION")
+        }
+
+        const result = await itemsCollection
+          .where({
+            familyId,
+            storage: command.in(storageValues)
+          })
+          .remove()
+
+        return {
+          success: true,
+          deletedCount: result.stats ? result.stats.removed : 0
+        }
+      }
+
       default:
         throw new Error("INVALID_ACTION")
     }

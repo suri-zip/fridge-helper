@@ -1,4 +1,5 @@
-const { getFoodById, updateFood, INVENTORY_CATEGORIES } = require("../../services/inventory")
+const { getFoodById, updateFood } = require("../../services/inventory")
+const { FOOD_CATEGORIES } = require("../../services/foodCategories")
 const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
 
 Page({
@@ -9,7 +10,7 @@ Page({
     isEditing: false,
     storageOptions: [],
     storageIndex: 0,
-    categoryOptions: INVENTORY_CATEGORIES,
+    categoryOptions: FOOD_CATEGORIES,
     unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"],
     emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"]
   },

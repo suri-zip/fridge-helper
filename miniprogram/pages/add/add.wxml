@@ -76,6 +76,13 @@
   </picker>
 </view>
 
-    <button class="save-btn" bindtap="onSave">保存</button>
+    <button
+  class="save-btn"
+  loading="{{saving}}"
+  disabled="{{saving}}"
+  bindtap="onSave"
+>
+  保存
+</button>
   </view>
 </view>

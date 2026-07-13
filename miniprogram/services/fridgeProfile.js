@@ -110,6 +110,34 @@ function saveProfile(profile) {
   return profile
 }
 
+async function refreshFamilyProfileFromCloud() {
+  const res = await wx.cloud.callFunction({
+    name: "login"
+  })
+
+  const result = res.result || {}
+  const loginState = {
+    ready: true,
+    openid: result.openid || "",
+    user: result.user || null,
+    family: result.family || null
+  }
+
+  if (!result.family) {
+    return {
+      loginState,
+      profile: saveProfile(getEmptyLocalProfile())
+    }
+  }
+
+  const profile = familyToLocalProfile(result.family, result.openid) || getEmptyLocalProfile()
+
+  return {
+    loginState,
+    profile: saveProfile(profile)
+  }
+}
+
 function getEmptyLocalProfile() {
   return {
     familyName: "",
@@ -139,9 +167,9 @@ function familyToLocalProfile(family, currentMemberId) {
   }
 }
 
-function getFridgeAreas() {
+async function getFridgeAreas() {
   const profile = getStoredProfile()
-  const inventory = getInventory()
+  const inventory = await getInventory()
 
   return profile.areas.map(area => ({
     ...area,
@@ -152,7 +180,9 @@ function getFridgeAreas() {
 }
 
 function getFridgeStorageOptions() {
-  return getFridgeAreas().map(area => ({
+  const profile = getStoredProfile()
+
+  return profile.areas.map(area => ({
     label: `${area.name}${area.type && area.type !== area.name ? `（${area.type}）` : ""}`,
     value: area.id,
     name: area.name,
@@ -160,7 +190,25 @@ function getFridgeStorageOptions() {
   }))
 }
 
-function addArea(areaInput) {
+async function updateFamilyAreasOnCloud(areas, activeAreaId) {
+  const res = await wx.cloud.callFunction({
+    name: "updateFamilyAreas",
+    data: {
+      areas,
+      activeAreaId
+    }
+  })
+
+  const result = res.result || {}
+
+  if (!result.success) {
+    throw new Error(result.message || "家庭区域更新失败")
+  }
+
+  return result.family || null
+}
+
+async function addArea(areaInput) {
   const profile = getStoredProfile()
   const nextArea = {
     id: `area-${Date.now()}`,
@@ -169,14 +217,19 @@ function addArea(areaInput) {
     icon: areaInput.icon || "🧊"
   }
 
-  return saveProfile({
+  const nextProfile = {
     ...profile,
     areas: [...profile.areas, nextArea],
     activeAreaId: profile.activeAreaId || nextArea.id
-  })
+  }
+
+  const family = await updateFamilyAreasOnCloud(nextProfile.areas, nextProfile.activeAreaId)
+  const syncedProfile = family ? familyToLocalProfile(family, nextProfile.currentMemberId) : nextProfile
+
+  return saveProfile(syncedProfile)
 }
 
-function updateArea(areaId, updates) {
+async function updateArea(areaId, updates) {
   const profile = getStoredProfile()
   const nextAreas = profile.areas.map(area => {
     if (area.id !== areaId) {
@@ -189,10 +242,15 @@ function updateArea(areaId, updates) {
     }
   })
 
-  return saveProfile({
+  const nextProfile = {
     ...profile,
     areas: nextAreas
-  })
+  }
+
+  const family = await updateFamilyAreasOnCloud(nextProfile.areas, nextProfile.activeAreaId)
+  const syncedProfile = family ? familyToLocalProfile(family, nextProfile.currentMemberId) : nextProfile
+
+  return saveProfile(syncedProfile)
 }
 
 function updateMember(memberId, updates) {
@@ -248,7 +306,7 @@ function leaveFamily() {
   })
 }
 
-function removeArea(areaId) {
+async function removeArea(areaId) {
   const profile = getStoredProfile()
   const targetArea = profile.areas.find(area => area.id === areaId)
 
@@ -262,25 +320,29 @@ function removeArea(areaId) {
     return null
   }
 
-  removeFoodByStorage(targetArea.id)
-  removeFoodByStorage(targetArea.type)
-  if (targetArea.name !== targetArea.type) {
-    removeFoodByStorage(targetArea.name)
-  }
+  const nextActiveAreaId = profile.activeAreaId === areaId ? nextAreas[0].id : profile.activeAreaId
+
+  await updateFamilyAreasOnCloud(nextAreas, nextActiveAreaId)
+  await removeFoodByStorage([targetArea.id, targetArea.type, targetArea.name])
 
   return saveProfile({
     ...profile,
     areas: nextAreas,
-    activeAreaId: profile.activeAreaId === areaId ? nextAreas[0].id : profile.activeAreaId
+    activeAreaId: nextActiveAreaId
   })
 }
 
-function setActiveArea(areaId) {
+async function setActiveArea(areaId) {
   const profile = getStoredProfile()
-  return saveProfile({
+  const nextProfile = {
     ...profile,
     activeAreaId: areaId
-  })
+  }
+
+  const family = await updateFamilyAreasOnCloud(nextProfile.areas, nextProfile.activeAreaId)
+  const syncedProfile = family ? familyToLocalProfile(family, nextProfile.currentMemberId) : nextProfile
+
+  return saveProfile(syncedProfile)
 }
 
 module.exports = {
@@ -288,6 +350,7 @@ module.exports = {
   getDefaultProfile,
   getStoredProfile,
   saveProfile,
+  refreshFamilyProfileFromCloud,
   getEmptyLocalProfile,
   getCurrentMember,
   familyToLocalProfile,

@@ -1,116 +1,101 @@
-const STORAGE_KEY = "TUNTUN_INVENTORY"
-const { getExpireText, getStatus } = require("../utils/date")
+const {
+  getExpireText,
+  getStatus
+} = require("../utils/date")
 
-const INVENTORY_CATEGORIES = ["水果", "蔬菜", "肉类", "海鲜", "调料", "饮料", "零食", "其他"]
-
-const defaultInventory = [
-  {
-    id: "1",
-    name: "鸡蛋",
-    emoji: "🥚",
-    category: "蛋类",
-    storage: "冷藏",
-    quantity: 12,
-    unit: "个",
-    purchaseDate: "2026-07-08",
-    expireDate: "2026-07-21",
-    status: "fresh"
-  },
-  {
-    id: "2",
-    name: "牛奶",
-    emoji: "🥛",
-    category: "饮料",
-    storage: "冷藏",
-    quantity: 2,
-    unit: "盒",
-    purchaseDate: "2026-07-08",
-    expireDate: "2026-07-09",
-    status: "warning"
-  },
-  {
-    id: "3",
-    name: "草莓",
-    emoji: "🍓",
-    category: "水果",
-    storage: "冷藏",
-    quantity: 1,
-    unit: "盒",
-    purchaseDate: "2026-07-08",
-    expireDate: "2026-07-08",
-    status: "danger"
-  }
+const INVENTORY_CATEGORIES = [
+  "全部",
+  "冷藏",
+  "冷冻",
+  "常温",
+  "水果",
+  "蔬菜",
+  "肉类",
+  "海鲜",
+  "乳制品",
+  "其他"
 ]
 
-function getInventory() {
-  const data = wx.getStorageSync(STORAGE_KEY)
-
-  const inventory = data && data.length ? data : defaultInventory
-
-  if (!data || !data.length) {
-    wx.setStorageSync(STORAGE_KEY, defaultInventory)
-  }
-
-  return inventory.map(item => ({
+function formatItem(item) {
+  return {
     ...item,
+    id: item._id,
     expireText: getExpireText(item.expireDate),
     status: getStatus(item.expireDate)
-  }))
-}
-
-function addFood(food) {
-  const inventory = getInventory()
-
-  const newFood = {
-    id: Date.now().toString(),
-    emoji: food.emoji || "🍽️",
-    status: food.status || "fresh",
-    ...food
   }
-
-  inventory.unshift(newFood)
-  wx.setStorageSync(STORAGE_KEY, inventory)
-
-  return newFood
-}
-function getFoodById(id) {
-  const inventory = getInventory()
-  return inventory.find(item => String(item.id) === String(id))
 }
 
-function updateFood(id, updates) {
-  const rawData = wx.getStorageSync(STORAGE_KEY)
-  const inventory = rawData && rawData.length ? rawData : defaultInventory
-
-  const newInventory = inventory.map(item => {
-    if (String(item.id) !== String(id)) return item
-
-    return {
-      ...item,
-      ...updates
+async function callInventory(action, data = {}) {
+  const res = await wx.cloud.callFunction({
+    name: "inventory",
+    data: {
+      action,
+      ...data
     }
   })
 
-  wx.setStorageSync(STORAGE_KEY, newInventory)
+  const result = res.result
 
-  return getFoodById(id)
+  if (!result || !result.success) {
+    throw new Error(result?.message || "库存操作失败")
+  }
+
+  return result
 }
 
-function removeFoodByStorage(storageName) {
-  const rawData = wx.getStorageSync(STORAGE_KEY)
-  const inventory = rawData && rawData.length ? rawData : defaultInventory
-  const nextInventory = inventory.filter(item => item.storage !== storageName)
+async function getInventory() {
+  const result = await callInventory("list")
 
-  wx.setStorageSync(STORAGE_KEY, nextInventory)
+  return result.items.map(formatItem)
+}
 
-  return nextInventory
+async function addFood(food) {
+  const result = await callInventory("add", {
+    food
+  })
+
+  return formatItem(result.item)
+}
+
+async function updateFood(itemId, updates) {
+  const result = await callInventory("update", {
+    itemId,
+    updates
+  })
+
+  return formatItem(result.item)
+}
+
+async function deleteFood(itemId) {
+  const result = await callInventory("delete", {
+    itemId
+  })
+
+  return result.deletedId
+}
+
+async function removeFoodByStorage(storageValues) {
+  const result = await callInventory("deleteByStorage", {
+    storageValues: Array.isArray(storageValues) ? storageValues : [storageValues]
+  })
+
+  return result.deletedCount || 0
+}
+
+async function getFoodById(itemId) {
+  const inventory = await getInventory()
+
+  return inventory.find(
+    item => String(item._id) === String(itemId)
+  )
 }
 
 module.exports = {
+  INVENTORY_CATEGORIES,
   getInventory,
   addFood,
-  getFoodById,
   updateFood,
-  removeFoodByStorage,
-  INVENTORY_CATEGORIES
+  deleteFood,
+  getFoodById,
+  removeFoodByStorage
 }
