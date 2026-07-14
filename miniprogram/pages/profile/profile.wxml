@@ -23,44 +23,84 @@
     </view>
 
     <view class="section-title">我的资料</view>
-    <view class="card member-card">
-      <view wx:if="{{currentMember}}" class="member-item member-current-item">
-        <view class="member-avatar">{{currentMember.avatar}}</view>
-        <view class="member-meta">
-          <view class="member-name-row">
-            <view class="member-name">{{currentMember.name}}</view>
-            <view class="member-role">{{currentMember.role}}</view>
-          </view>
-          <view class="member-status">{{currentMember.status}}</view>
-        </view>
-        <view class="member-current-badge">当前账号</view>
+ <view class="profile-card" wx:if="{{currentMember && !isEditingProfile}}">
+  <view class="member-avatar">
+    {{currentMember.avatar || "👤"}}
+  </view>
+
+  <view class="profile-text">
+    <text class="profile-name">
+      {{currentMember.name || "我"}}
+    </text>
+
+    <text class="role-tag">
+      {{currentMember.role || "家人"}}
+    </text>
+  </view>
+
+  <view class="edit-profile-btn" bindtap="startEditProfile">
+    编辑资料
+  </view>
+</view>
+
+<view class="profile-edit-card" wx:if="{{currentMember && isEditingProfile}}">
+  <view class="field">
+    <view class="label">昵称</view>
+    <input
+      class="input"
+      value="{{memberName}}"
+      placeholder="请输入昵称"
+      bindinput="onMemberNameInput"
+    />
+  </view>
+
+  <view class="field">
+    <view class="label">头像</view>
+
+    <picker
+      range="{{memberAvatarOptions}}"
+      value="{{memberAvatarIndex}}"
+      bindchange="onMemberAvatarChange"
+    >
+      <view class="picker">
+        {{memberAvatarOptions[memberAvatarIndex] || "👤"}}
       </view>
+    </picker>
+  </view>
 
-      <view class="member-edit-form">
-        <view class="form-row">
-          <input
-            class="area-input"
-            placeholder="你的名称"
-            value="{{memberName}}"
-            bindinput="onMemberNameInput"
-          />
-          <picker mode="selector" range="{{memberRoleOptions}}" value="{{memberRoleIndex}}" bindchange="onMemberRoleChange">
-            <view class="area-picker">{{memberRoleOptions[memberRoleIndex]}}</view>
-          </picker>
-        </view>
+  <view class="field">
+    <view class="label">角色</view>
 
-        <view class="form-row">
-          <picker mode="selector" range="{{memberAvatarOptions}}" value="{{memberAvatarIndex}}" bindchange="onMemberAvatarChange">
-            <view class="area-picker">{{memberAvatarOptions[memberAvatarIndex]}}</view>
-          </picker>
-        </view>
-
-        <view class="area-form-actions two-btns">
-          <button class="action-btn ghost full" bindtap="resetCurrentMemberEditor">重置</button>
-          <button class="action-btn primary full" bindtap="saveMemberEdit">保存资料</button>
-        </view>
+    <picker
+      range="{{memberRoleOptions}}"
+      value="{{memberRoleIndex}}"
+      bindchange="onMemberRoleChange"
+    >
+      <view class="picker">
+        {{memberRoleOptions[memberRoleIndex] || "家人"}}
       </view>
-    </view>
+    </picker>
+  </view>
+
+  <view class="profile-actions">
+    <button
+      class="secondary-btn"
+      bindtap="cancelEditProfile"
+      disabled="{{savingProfile}}"
+    >
+      取消
+    </button>
+
+    <button
+      class="primary-btn"
+      bindtap="saveMemberEdit"
+      loading="{{savingProfile}}"
+      disabled="{{savingProfile}}"
+    >
+      保存资料
+    </button>
+  </view>
+</view>
 
     <view class="section-title">家庭成员</view>
     <view class="card member-card">
@@ -72,7 +112,6 @@
               <view class="member-name">{{item.name}}</view>
               <view class="member-role">{{item.role}}</view>
             </view>
-            <view class="member-status">{{item.status}}</view>
           </view>
         </view>
       </block>

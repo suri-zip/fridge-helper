@@ -56,7 +56,6 @@ exports.main = async event => {
     name: currentMemberIndex >= 0 && members[currentMemberIndex].name ? members[currentMemberIndex].name : "我",
     role: currentMemberIndex >= 0 && members[currentMemberIndex].role ? members[currentMemberIndex].role : "家人",
     avatar: currentMemberIndex >= 0 && members[currentMemberIndex].avatar ? members[currentMemberIndex].avatar : "👤",
-    status: currentMemberIndex >= 0 && members[currentMemberIndex].status ? members[currentMemberIndex].status : "已加入"
   }
 
   if (currentMemberIndex >= 0) {

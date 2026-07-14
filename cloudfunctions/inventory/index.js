@@ -60,6 +60,32 @@ function validateFood(food) {
   }
 }
 
+async function addActivityLog({
+  familyId,
+  user,
+  openid,
+  action,
+  itemId,
+  itemName,
+  emoji,
+  description
+}) {
+  await logsCollection.add({
+    data: {
+      familyId,
+      userId: user._id,
+      openid,
+      userName: user.name || "家庭成员",
+      action,
+      itemId,
+      itemName,
+      emoji: emoji || "🍽️",
+      description,
+      createdAt: new Date()
+    }
+  })
+}
+
 function formatError(error) {
   const messages = {
     USER_NOT_FOUND: "用户不存在，请重新登录",
@@ -119,10 +145,22 @@ exports.main = async (event = {}) => {
         })
 
         const addedItem = await itemsCollection.doc(result._id).get()
+        const item = addedItem.data
+
+        await addActivityLog({
+          familyId,
+          user,
+          openid,
+          action: "add",
+          itemId: item._id,
+          itemName: item.name,
+          emoji: item.emoji,
+          description: `添加了 ${item.quantity}${item.unit}${item.name}`
+        })
 
         return {
           success: true,
-          item: addedItem.data
+          item
         }
       }
 
@@ -157,10 +195,22 @@ exports.main = async (event = {}) => {
         })
 
         const updatedItem = await itemsCollection.doc(itemId).get()
+        const item = updatedItem.data
+
+        await addActivityLog({
+          familyId,
+          user,
+          openid,
+          action: "update",
+          itemId: item._id,
+          itemName: item.name,
+          emoji: item.emoji,
+          description: `修改了${item.name}`
+        })
 
         return {
           success: true,
-          item: updatedItem.data
+          item
         }
       }
 
@@ -183,7 +233,20 @@ exports.main = async (event = {}) => {
           throw new Error("ITEM_NOT_FOUND")
         }
 
+        const existingItem = existingResult.data[0]
+
         await itemsCollection.doc(itemId).remove()
+
+        await addActivityLog({
+          familyId,
+          user,
+          openid,
+          action: "delete",
+          itemId,
+          itemName: existingItem.name,
+          emoji: existingItem.emoji,
+          description: `删除了${existingItem.name}`
+        })
 
         return {
           success: true,
@@ -210,6 +273,23 @@ exports.main = async (event = {}) => {
         return {
           success: true,
           deletedCount: result.stats ? result.stats.removed : 0
+        }
+      }
+
+      case "recentLogs": {
+        const limit = Math.min(Number(event.limit) || 5, 20)
+
+        const result = await logsCollection
+          .where({
+            familyId
+          })
+          .orderBy("createdAt", "desc")
+          .limit(limit)
+          .get()
+
+        return {
+          success: true,
+          logs: result.data
         }
       }
 

@@ -47,9 +47,29 @@
   </view>
 
   <view class="section-title">最近更新</view>
-  <view class="card">
-    <block wx:for="{{recentLogs}}" wx:key="*this">
-      <view class="log-item">{{item}}</view>
-    </block>
+
+<view class="card activity-card">
+  <block wx:for="{{recentLogs}}" wx:key="_id">
+    <view class="activity-item">
+      <view class="activity-emoji">
+        {{item.emoji || "🍽️"}}
+      </view>
+
+      <view class="activity-content">
+        <view class="activity-text">
+          <text class="activity-user">{{item.userName}}</text>
+          <text> {{item.description}}</text>
+        </view>
+
+        <view class="activity-time">
+          {{item.timeText}}
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{recentLogs.length === 0}}" class="empty-activity">
+    暂时还没有更新记录
   </view>
+</view>
 </view>

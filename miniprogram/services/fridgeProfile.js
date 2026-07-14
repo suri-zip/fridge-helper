@@ -24,7 +24,6 @@ function getDefaultProfile() {
         name: "我",
         role: "户主",
         avatar: "👤",
-        status: "在线"
       },
     ],
     areas: [
@@ -286,7 +285,6 @@ function leaveFamily() {
       {
         ...currentMember,
         role: "户主",
-        status: "当前账号"
       }
     ]
   })

@@ -91,7 +91,6 @@ exports.main = async event => {
     name: "我",
     role: "户主",
     avatar: "👤",
-    status: "在线"
   }
   const familyDoc = {
     familyName,

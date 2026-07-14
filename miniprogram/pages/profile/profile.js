@@ -30,6 +30,8 @@ Page({
 		editingAreaId: "",
 		editingAreaName: "",
 		editingAreaTypeIndex: 0,
+		isEditingProfile: false,
+    	savingProfile: false,
 		memberName: "",
 		memberRoleIndex: 0,
 		memberAvatarIndex: 0,
@@ -37,10 +39,6 @@ Page({
 		areaTypes: ["冷藏", "冷冻", "变温", "门架", "抽屉", "自定义"],
 		memberRoleOptions: ["户主", "家人", "长辈", "孩子", "访客"],
 		memberAvatarOptions: ["👤", "👩", "👨", "🧑", "👵", "🧒", "👶", "🐶", "🐱"]
-	},
-
-	onLoad() {
-		this.loadPageState()
 	},
 
 	onShow() {
@@ -103,7 +101,6 @@ Page({
 			memberName: currentMember ? currentMember.name : "",
 			memberRoleIndex: currentMember ? Math.max(0, this.data.memberRoleOptions.indexOf(currentMember.role)) : 0,
 			memberAvatarIndex: currentMember ? Math.max(0, this.data.memberAvatarOptions.indexOf(currentMember.avatar)) : 0,
-			memberStatus: currentMember ? currentMember.status || "" : ""
 		})
 	},
 
@@ -134,7 +131,6 @@ Page({
 			memberName: currentMember ? currentMember.name : "",
 			memberRoleIndex: roleIndex >= 0 ? roleIndex : 1,
 			memberAvatarIndex: avatarIndex >= 0 ? avatarIndex : 0,
-			memberStatus: currentMember ? currentMember.status || "" : ""
 		})
 	},
 
@@ -406,42 +402,110 @@ Page({
 		})
 	},
 
-	async saveMemberEdit() {
-		if (!this.data.hasFamily) {
-			return
-		}
+	startEditProfile() {
+  	if (!this.data.currentMember) return
 
-		const memberName = this.data.memberName.trim()
-
-		if (!this.data.currentMember) {
-			return
-		}
-
-		if (!memberName) {
-			wx.showToast({
-				title: "请输入成员名称",
-				icon: "none"
-			})
-			return
-		}
-
-		const role = this.data.memberRoleOptions[this.data.memberRoleIndex] || this.data.memberRoleOptions[1]
-		const avatar = this.data.memberAvatarOptions[this.data.memberAvatarIndex] || this.data.memberAvatarOptions[0]
-		const currentMember = this.data.currentMember || getCurrentMember(getStoredProfile())
-		const nextProfile = updateMember(currentMember.id, {
-			name: memberName,
-			role,
-			avatar,
-			status: this.data.memberStatus.trim() || "已修改"
-		})
-
-		await this.saveProfile(nextProfile)
-
-		wx.showToast({
-			title: "资料已更新",
-			icon: "success"
-		})
+  	this.setData({
+    	isEditingProfile: true
+  	})
 	},
+
+	cancelEditProfile() {
+  	if (!this.data.hasFamily) return
+
+  	this.syncCurrentMemberEditor(getStoredProfile())
+
+  	this.setData({
+    	isEditingProfile: false
+  	})
+	},startEditProfile() {
+  	if (!this.data.currentMember) return
+
+  	this.setData({
+    isEditingProfile: true
+  })
+	},
+
+	cancelEditProfile() {
+  	if (!this.data.hasFamily) return
+
+  	this.syncCurrentMemberEditor(getStoredProfile())
+
+  	this.setData({
+    	isEditingProfile: false
+  	})
+	},
+
+	async saveMemberEdit() {
+  if (!this.data.hasFamily || !this.data.currentMember) {
+    return
+  }
+
+  const memberName = this.data.memberName.trim()
+
+  if (!memberName) {
+    wx.showToast({
+      title: "请输入成员名称",
+      icon: "none"
+    })
+    return
+  }
+
+  const role =
+    this.data.memberRoleOptions[this.data.memberRoleIndex] ||
+    "家人"
+
+  const avatar =
+    this.data.memberAvatarOptions[this.data.memberAvatarIndex] ||
+    "👤"
+
+  this.setData({
+    savingProfile: true
+  })
+
+  try {
+    const res = await wx.cloud.callFunction({
+      name: "updateMemberProfile",
+      data: {
+        name: memberName,
+        role,
+        avatar
+      }
+    })
+
+    const result = res.result || {}
+
+    if (!result.success) {
+      throw new Error(result.message || "保存失败")
+    }
+
+    await refreshFamilyProfileFromCloud()
+    await this.applyFamilyProfile(
+      result.family,
+      this.getLoginState().openid
+    )
+
+    this.setData({
+      isEditingProfile: false
+    })
+
+    wx.showToast({
+      title: "资料已更新",
+      icon: "success"
+    })
+  } catch (err) {
+    console.error("保存成员资料失败：", err)
+
+    wx.showToast({
+      title: err.message || "保存失败",
+      icon: "none"
+    })
+  } finally {
+    this.setData({
+      savingProfile: false
+    })
+  }
+},
 
 	onEditingAreaNameInput(event) {
 		if (!this.data.hasFamily) {

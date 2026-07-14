@@ -1,6 +1,6 @@
 const { getInventory } = require("../../services/inventory")
 const { refreshFamilyProfileFromCloud, setActiveArea } = require("../../services/fridgeProfile")
-
+const { getRecentLogs } = require("../../services/activity")
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
 Page({
@@ -31,9 +31,10 @@ Page({
     })
 
     try {
-      const [inventory, profileResult] = await Promise.all([
+      const [inventory, profileResult, recentLogs] = await Promise.all([
         getInventory(),
-        refreshFamilyProfileFromCloud()
+        refreshFamilyProfileFromCloud(),
+        getRecentLogs(5)
       ])
 
       const profile = profileResult.profile
@@ -50,7 +51,8 @@ Page({
 
       this.setData({
         expiringItems,
-        fridgeAreas
+        fridgeAreas,
+        recentLogs
       })
     } catch (err) {
       console.error("读取首页数据失败：", err)
