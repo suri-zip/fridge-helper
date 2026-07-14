@@ -4,7 +4,7 @@
 
     <view class="hero-info">
       <view class="food-title">{{item.name}}</view>
-      <view class="food-sub">{{item.storageLabel || item.storage}} · {{item.category}}</view>
+      <view class="food-sub">{{item.storageLabel|| "未设置"}} · {{item.category}}</view>
       <view class="expire-tag {{item.status}}">{{item.expireText}}</view>
     </view>
   </view>
@@ -18,7 +18,7 @@
 
       <view class="info-row">
         <view class="info-label">存放位置</view>
-        <view class="info-value">{{item.storageLabel || item.storage}}</view>
+        <view class="info-value">{{item.storageLabel|| "未设置"}}</view>
       </view>
 
       <view class="info-row">

@@ -9,6 +9,7 @@ const command = db.command
 
 const usersCollection = db.collection("users")
 const itemsCollection = db.collection("items")
+const logsCollection = db.collection("activity_logs")
 
 /**
  * 根据当前微信用户查找用户记录和家庭 ID。

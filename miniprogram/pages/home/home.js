@@ -26,7 +26,8 @@ Page({
     wx.showTabBar()
 
     this.setData({
-      loading: true
+      loading: true,
+      keyword: ""
     })
 
     try {

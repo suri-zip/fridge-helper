@@ -53,12 +53,6 @@
           <picker mode="selector" range="{{memberAvatarOptions}}" value="{{memberAvatarIndex}}" bindchange="onMemberAvatarChange">
             <view class="area-picker">{{memberAvatarOptions[memberAvatarIndex]}}</view>
           </picker>
-          <input
-            class="area-input"
-            placeholder="状态，比如：在线 / 已加入 3 天"
-            value="{{memberStatus}}"
-            bindinput="onMemberStatusInput"
-          />
         </view>
 
         <view class="area-form-actions two-btns">

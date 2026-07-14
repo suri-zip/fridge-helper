@@ -3,19 +3,6 @@ const {
   getStatus
 } = require("../utils/date")
 
-const INVENTORY_CATEGORIES = [
-  "全部",
-  "冷藏",
-  "冷冻",
-  "常温",
-  "水果",
-  "蔬菜",
-  "肉类",
-  "海鲜",
-  "乳制品",
-  "其他"
-]
-
 function formatItem(item) {
   return {
     ...item,
@@ -91,7 +78,6 @@ async function getFoodById(itemId) {
 }
 
 module.exports = {
-  INVENTORY_CATEGORIES,
   getInventory,
   addFood,
   updateFood,

@@ -1,6 +1,6 @@
-const { getFoodById, updateFood } = require("../../services/inventory")
+const { getFoodById, updateFood, deleteFood } = require("../../services/inventory")
 const { FOOD_CATEGORIES } = require("../../services/foodCategories")
-const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
+const { getFridgeStorageOptions, refreshFamilyProfileFromCloud } = require("../../services/fridgeProfile")
 
 Page({
   data: {
@@ -8,6 +8,7 @@ Page({
     item: null,
     form: {},
     isEditing: false,
+    loading: true,
     storageOptions: [],
     storageIndex: 0,
     categoryOptions: FOOD_CATEGORIES,
@@ -15,18 +16,26 @@ Page({
     emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"]
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     const id = options.id
     this.setData({ id })
-    this.loadFood(id)
+    await this.loadFood()
   },
 
   onShow() {
     this.syncStorageOptions()
   },
 
-  loadFood(id) {
-    const item = getFoodById(id)
+  async loadFood() {
+  this.setData({
+    loading: true
+  })
+
+  try {
+    await refreshFamilyProfileFromCloud()
+
+    const storageOptions = getFridgeStorageOptions()
+    const item = await getFoodById(this.data.id)
 
     if (!item) {
       wx.showToast({
@@ -36,20 +45,39 @@ Page({
       return
     }
 
-    this.setData(
-      {
-        item: {
-          ...item,
-          storageLabel: this.getStorageLabel(item.storage, this.data.storageOptions)
-        },
-        form: { ...item },
-        isEditing: false
-      },
-      () => {
-        this.syncStorageOptions()
-      }
+    const storageIndex = storageOptions.findIndex(option =>
+      String(option.value) === String(item.storage)
     )
-  },
+
+    const storageLabel =
+      storageIndex >= 0
+        ? storageOptions[storageIndex].label
+        : item.storage
+
+    this.setData({
+      storageOptions,
+      storageIndex: storageIndex >= 0 ? storageIndex : 0,
+      item: {
+        ...item,
+        storageLabel
+      },
+      form: {
+        ...item
+      }
+    })
+  } catch (err) {
+    console.error("读取详情失败：", err)
+
+    wx.showToast({
+      title: err.message || "读取失败",
+      icon: "none"
+    })
+  } finally {
+    this.setData({
+      loading: false
+    })
+  }
+},
 
   getStorageLabel(storageValue, storageOptions = this.data.storageOptions) {
     const match = storageOptions.find(option => option.value === storageValue || option.type === storageValue || option.name === storageValue)

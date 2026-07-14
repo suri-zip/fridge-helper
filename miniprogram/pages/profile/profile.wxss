@@ -165,11 +165,6 @@
 	font-size: 22rpx;
 }
 
-.member-status {
-	margin-top: 6rpx;
-	font-size: 24rpx;
-	color: #6b7280;
-}
 
 .member-current-badge {
 	padding: 10rpx 16rpx;

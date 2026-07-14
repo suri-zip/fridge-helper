@@ -33,7 +33,6 @@ Page({
 		memberName: "",
 		memberRoleIndex: 0,
 		memberAvatarIndex: 0,
-		memberStatus: "",
 		joinInviteCode: "",
 		areaTypes: ["冷藏", "冷冻", "变温", "门架", "抽屉", "自定义"],
 		memberRoleOptions: ["户主", "家人", "长辈", "孩子", "访客"],
@@ -79,7 +78,6 @@ Page({
 				memberName: "",
 				memberRoleIndex: 0,
 				memberAvatarIndex: 0,
-				memberStatus: ""
 			})
 			return
 		}
@@ -156,7 +154,6 @@ Page({
 			memberName: "",
 			memberRoleIndex: 0,
 			memberAvatarIndex: 0,
-			memberStatus: ""
 		})
 
 		this.syncCurrentMemberEditor(nextProfile)
@@ -406,12 +403,6 @@ Page({
 	onMemberAvatarChange(event) {
 		this.setData({
 			memberAvatarIndex: Number(event.detail.value)
-		})
-	},
-
-	onMemberStatusInput(event) {
-		this.setData({
-			memberStatus: event.detail.value
 		})
 	},
 

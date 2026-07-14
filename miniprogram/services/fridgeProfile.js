@@ -26,20 +26,6 @@ function getDefaultProfile() {
         avatar: "👤",
         status: "在线"
       },
-      {
-        id: "member-2",
-        name: "小雅",
-        role: "家人",
-        avatar: "👩",
-        status: "已加入 3 天"
-      },
-      {
-        id: "member-3",
-        name: "乐乐",
-        role: "家人",
-        avatar: "🧒",
-        status: "已加入 1 天"
-      }
     ],
     areas: [
       {
