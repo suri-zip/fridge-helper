@@ -37,11 +37,25 @@
         </block>
     </scroll-view>
 
-    <input
-        class="search"
-        placeholder="搜索食材..."
-        bindinput="onSearch"
-    />
+    <view class="search-box">
+  <text class="search-icon">⌕</text>
+
+  <input
+    class="search-input"
+    placeholder="搜索食材"
+    value="{{keyword}}"
+    bindinput="onSearch"
+    confirm-type="search"
+  />
+
+  <view
+    wx:if="{{keyword}}"
+    class="clear-search"
+    bindtap="clearSearch"
+  >
+    ×
+  </view>
+</view>
 
     <view class="food-list">
         <block
@@ -56,4 +70,9 @@
             </view>
         </block>
     </view>
+    <view wx:if="{{!loading && displayList.length === 0}}" class="empty-state">
+  <view class="empty-icon">🐧</view>
+  <view class="empty-title">没有找到相关食材</view>
+  <view class="empty-text">换个关键词试试吧</view>
+</view>
 </view>

@@ -15,6 +15,26 @@ Page({
   },
 
   async onShow() {
+    const app = getApp()
+
+  const passedKeyword = app.globalData.inventoryKeyword || ""
+  const passedCategory = app.globalData.inventoryFilter || null
+
+  const updates = {}
+
+  if (passedKeyword) {
+    updates.keyword = passedKeyword
+    app.globalData.inventoryKeyword = ""
+  }
+
+  if (passedCategory) {
+    updates.currentCategory = passedCategory
+    app.globalData.inventoryFilter = null
+  }
+
+  if (Object.keys(updates).length > 0) {
+    this.setData(updates)
+  }
     await this.loadInventory()
   },
 
@@ -151,6 +171,14 @@ Page({
   onSearch(e) {
     this.setData({
       keyword: e.detail.value
+    }, () => {
+      this.filterData()
+    })
+  },
+
+  clearSearch() {
+    this.setData({
+      keyword: ""
     }, () => {
       this.filterData()
     })

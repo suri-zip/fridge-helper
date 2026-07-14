@@ -1,6 +1,12 @@
 const { saveProfile, familyToLocalProfile, getEmptyLocalProfile } = require("./services/fridgeProfile")
 
 App({
+
+  globalData: {
+    inventoryFilter: null,
+    inventoryKeyword: ""
+  },
+
   onLaunch() {
 
     wx.cloud.init({

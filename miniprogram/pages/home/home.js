@@ -7,10 +7,8 @@ Page({
   data: {
     expiringItems: [],
     fridgeAreas: [],
-    recentLogs: [
-      "妈妈 买了草莓",
-      "你 吃掉了 2 个鸡蛋"
-    ],
+    recentLogs: [],
+    keyword: "",
     loading: false
   },
 
@@ -85,6 +83,40 @@ Page({
       }
     })
   },
+
+  onSearchInput(e) {
+    this.setData({
+      keyword: e.detail.value
+    })
+},
+
+clearSearch() {
+  this.setData({
+    keyword: ""
+  })
+},
+
+
+  submitSearch() {
+    const keyword = String(this.data.keyword || "").trim()
+
+
+    if (!keyword) {
+      wx.showToast({
+        title: "请输入搜索关键词",
+        icon: "none"
+      })
+      return
+    }
+    
+    getApp().globalData.inventoryKeyword = keyword
+    getApp().globalData.inventoryFilter = "all"
+
+    wx.switchTab({
+    url: "/pages/inventory/inventory"
+  })
+  },
+
 
   onFoodTap(e) {
     const item = e.detail && e.detail.item

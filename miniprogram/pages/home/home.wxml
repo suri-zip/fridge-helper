@@ -7,9 +7,26 @@
     </view>
   </view>
 
-  <view class="search">
-    搜索食材……
+  <view class="search-box">
+  <text class="search-icon">⌕</text>
+
+  <input
+    class="search-input"
+    placeholder="搜索食材"
+    value="{{keyword}}"
+    bindinput="onSearchInput"
+    bindconfirm="submitSearch"
+    confirm-type="search"
+  />
+
+  <view
+    wx:if="{{keyword}}"
+    class="clear-search"
+    bindtap="clearSearch"
+  >
+    ×
   </view>
+</view>
 
   <view class="section-title">快过期（{{expiringItems.length}}）</view>
   <view class="expiring-list">

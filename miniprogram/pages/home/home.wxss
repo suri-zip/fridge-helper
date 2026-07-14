@@ -27,13 +27,40 @@
   font-size: 30rpx;
 }
 
-.search {
-  margin-top: 24rpx;
+.search-box {
+  height: 84rpx;
+  padding: 0 24rpx;
+  margin-bottom: 24rpx;
   background: #ffffff;
-  color: #9CA3AF;
-  padding: 24rpx 32rpx;
-  border-radius: 999rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.05);
+}
+
+.search-icon {
+  color: #9ca3af;
+  font-size: 34rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 84rpx;
   font-size: 28rpx;
+  color: #1f2937;
+}
+
+.clear-search {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #eef2f6;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
 }
 
 
