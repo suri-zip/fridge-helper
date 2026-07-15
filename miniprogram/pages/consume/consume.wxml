@@ -98,7 +98,7 @@
   </view>
 
   <view wx:elif="{{!loading && inventory.length === 0}}" class="empty-card">
-    <view class="empty-icon">🐧</view>
+    <image class="empty-image" src="/assets/cannot_find.png" mode="aspectFit"></image>
     <view class="empty-title">目前没有可消耗的食材</view>
     <view class="empty-description">先记录一些新买的食材吧</view>
   </view>

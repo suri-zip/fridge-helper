@@ -1,6 +1,8 @@
 <!--pages/recipe/recipe.wxml-->
 <view class="container">
   <view class="card">
-    这个功能正在开发中。
+    <image class="developing-image" src="/assets/developing.png" mode="aspectFit"></image>
+    <view class="developing-title">这个功能正在开发中~</view>
+    <view class="developing-text">敬请期待</view>
   </view>
 </view>

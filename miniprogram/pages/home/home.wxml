@@ -1,6 +1,6 @@
 <view class="container">
   <view class="hero card">
-    <view class="penguin">🐧</view>
+    <image class="penguin" src="/assets/hello.png" mode="aspectFit"></image>
     <view>
       <view class="hello">{{greetingText}}</view>
       <view class="sub">{{heroSubText}}</view>

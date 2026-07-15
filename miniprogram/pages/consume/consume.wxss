@@ -304,6 +304,13 @@
   font-size: 76rpx;
 }
 
+.empty-image {
+  width: 140rpx;
+  height: 140rpx;
+  display: block;
+  margin: 0 auto;
+}
+
 .empty-title {
   margin-top: 18rpx;
 

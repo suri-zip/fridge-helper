@@ -111,6 +111,13 @@
 	width: 100%;
 }
 
+.help-image {
+	display: block;
+	width: 220rpx;
+	height: 220rpx;
+	margin: 32rpx auto 0;
+}
+
 /* ---------- 我的资料 ---------- */
 
 .profile-card {

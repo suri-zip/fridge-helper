@@ -72,13 +72,13 @@
     </view>
 
         <view wx:if="{{!loading && inventory.length === 0}}" class="empty-state">
-            <view class="empty-icon">🐧</view>
+            <image class="hungry-icon" src="/assets/hungry.png" mode="aspectFit"></image>
             <view class="empty-title">还没有食材</view>
             <view class="empty-text">先去记录一些新食材吧</view>
         </view>
 
         <view wx:elif="{{!loading && keyword && displayList.length === 0}}" class="empty-state">
-            <view class="empty-icon">🔎</view>
+            <image class="empty-image" src="/assets/cannot_find.png" mode="aspectFit"></image>
             <view class="empty-title">没有找到相关食材</view>
             <view class="empty-text">换个关键词试试吧</view>
         </view>

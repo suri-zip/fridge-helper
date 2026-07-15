@@ -1,1 +1,25 @@
+ .card {
+	padding: 80rpx 40rpx;
+	text-align: center;
+}
+
+.developing-image {
+	width: 220rpx;
+	height: 220rpx;
+	display: block;
+	margin: 0 auto;
+}
+
+.developing-title {
+	margin-top: 28rpx;
+	font-size: 34rpx;
+	font-weight: 700;
+	color: #1f2937;
+}
+
+.developing-text {
+	margin-top: 12rpx;
+	font-size: 26rpx;
+	color: #6b7280;
+}
 /* pages/ai-assistant.wxss */
