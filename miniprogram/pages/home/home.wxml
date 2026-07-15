@@ -2,8 +2,8 @@
   <view class="hero card">
     <view class="penguin">🐧</view>
     <view>
-      <view class="hello">晚上好！</view>
-      <view class="sub">今天冰箱很充实～</view>
+      <view class="hello">{{greetingText}}</view>
+      <view class="sub">{{heroSubText}}</view>
     </view>
   </view>
 

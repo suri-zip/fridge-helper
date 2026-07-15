@@ -1,5 +1,5 @@
 const { getInventory } = require("../../services/inventory")
-const { refreshFamilyProfileFromCloud } = require("../../services/fridgeProfile")
+const { refreshFamilyProfileFromCloud, getFridgeAreaItemCount, isAreaStorage } = require("../../services/fridgeProfile")
 const { FOOD_CATEGORIES } = require("../../services/foodCategories")
 
 Page({
@@ -19,7 +19,6 @@ Page({
 
   const passedKeyword = app.globalData.inventoryKeyword || ""
   const passedCategory = app.globalData.inventoryFilter || null
-
   const updates = {}
 
   if (passedKeyword) {
@@ -74,9 +73,7 @@ Page({
       const fridgeAreas = Array.isArray(profile.areas)
         ? profile.areas.map(area => ({
             ...area,
-            count: inventory.filter(item => {
-              return item.storage === area.id || item.storage === area.type || item.storage === area.name
-            }).length
+            count: getFridgeAreaItemCount(area, inventory)
           }))
         : []
 
@@ -86,8 +83,8 @@ Page({
         inventory,
         fridgeAreas,
         categories,
-        categoryMode: "area",
-        currentCategory: "all"
+        categoryMode: this.data.categoryMode,
+        currentCategory: this.data.currentCategory
       }, () => {
         this.filterData()
       })
@@ -140,9 +137,7 @@ Page({
             return false
           }
 
-          return item.storage === selectedArea.id ||
-            item.storage === selectedArea.type ||
-            item.storage === selectedArea.name
+          return isAreaStorage(selectedArea, item.storage)
         })
       }
     }
@@ -178,6 +173,23 @@ Page({
 
   clearSearch() {
     this.setData({
+      keyword: ""
+    }, () => {
+      this.filterData()
+    })
+  },
+
+  setArea({ areaId, areaType }) {
+    if (!areaId) {
+      return
+    }
+
+    const categories = this.buildCategories("area", this.data.fridgeAreas)
+
+    this.setData({
+      categoryMode: "area",
+      categories,
+      currentCategory: areaId,
       keyword: ""
     }, () => {
       this.filterData()

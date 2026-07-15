@@ -84,6 +84,17 @@
   font-weight: 700;
 }
 
+.action-row button {
+  flex: 1;
+  height: 86rpx;
+  line-height: 86rpx;
+  margin-top: 28rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  padding: 0;
+}
+
 .primary-btn {
   background: #A7D8FF;
   color: #1F2937;
@@ -92,6 +103,17 @@
 .secondary-btn {
   background: #F8FAFC;
   color: #6B7280;
+}
+
+.danger-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.primary-btn::after,
+.secondary-btn::after,
+.danger-btn::after {
+  border: none;
 }
 
 .form-card {
@@ -178,8 +200,4 @@
 .action-row {
   display: flex;
   gap: 20rpx;
-}
-
-.action-row button {
-  flex: 1;
 }

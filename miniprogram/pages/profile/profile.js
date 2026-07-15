@@ -418,93 +418,77 @@ Page({
   	this.setData({
     	isEditingProfile: false
   	})
-	},startEditProfile() {
-  	if (!this.data.currentMember) return
-
-  	this.setData({
-    isEditingProfile: true
-  })
-	},
-
-	cancelEditProfile() {
-  	if (!this.data.hasFamily) return
-
-  	this.syncCurrentMemberEditor(getStoredProfile())
-
-  	this.setData({
-    	isEditingProfile: false
-  	})
 	},
 
 	async saveMemberEdit() {
-  if (!this.data.hasFamily || !this.data.currentMember) {
-    return
-  }
+		if (!this.data.hasFamily || !this.data.currentMember) {
+			return
+		}
 
-  const memberName = this.data.memberName.trim()
+		const memberName = this.data.memberName.trim()
 
-  if (!memberName) {
-    wx.showToast({
-      title: "请输入成员名称",
-      icon: "none"
-    })
-    return
-  }
+		if (!memberName) {
+			wx.showToast({
+				title: "请输入成员名称",
+				icon: "none"
+			})
+			return
+		}
 
-  const role =
-    this.data.memberRoleOptions[this.data.memberRoleIndex] ||
-    "家人"
+		const role =
+			this.data.memberRoleOptions[this.data.memberRoleIndex] ||
+			"家人"
 
-  const avatar =
-    this.data.memberAvatarOptions[this.data.memberAvatarIndex] ||
-    "👤"
+		const avatar =
+			this.data.memberAvatarOptions[this.data.memberAvatarIndex] ||
+			"👤"
 
-  this.setData({
-    savingProfile: true
-  })
+		this.setData({
+			savingProfile: true
+		})
 
-  try {
-    const res = await wx.cloud.callFunction({
-      name: "updateMemberProfile",
-      data: {
-        name: memberName,
-        role,
-        avatar
-      }
-    })
+		try {
+			const res = await wx.cloud.callFunction({
+				name: "updateMemberProfile",
+				data: {
+					name: memberName,
+					role,
+					avatar
+				}
+			})
 
-    const result = res.result || {}
+			const result = res.result || {}
 
-    if (!result.success) {
-      throw new Error(result.message || "保存失败")
-    }
+			if (!result.success) {
+				throw new Error(result.message || "保存失败")
+			}
 
-    await refreshFamilyProfileFromCloud()
-    await this.applyFamilyProfile(
-      result.family,
-      this.getLoginState().openid
-    )
+			await refreshFamilyProfileFromCloud()
+			await this.applyFamilyProfile(
+				result.family,
+				this.getLoginState().openid
+			)
 
-    this.setData({
-      isEditingProfile: false
-    })
+			this.setData({
+				isEditingProfile: false
+			})
 
-    wx.showToast({
-      title: "资料已更新",
-      icon: "success"
-    })
-  } catch (err) {
-    console.error("保存成员资料失败：", err)
+			wx.showToast({
+				title: "资料已更新",
+				icon: "success"
+			})
+		} catch (err) {
+			console.error("保存成员资料失败：", err)
 
-    wx.showToast({
-      title: err.message || "保存失败",
-      icon: "none"
-    })
-  } finally {
-    this.setData({
-      savingProfile: false
-    })
-  }
+			wx.showToast({
+				title: err.message || "保存失败",
+				icon: "none"
+			})
+		} finally {
+			this.setData({
+				savingProfile: false
+			})
+		}
 },
 
 	onEditingAreaNameInput(event) {

@@ -1,4 +1,4 @@
-<!--pages/recipe/recipe.wxml-->
+<!--pages/shopping-list.wxml-->
 <view class="container">
   <view class="card">
     这个功能正在开发中。

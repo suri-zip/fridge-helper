@@ -3,6 +3,10 @@
     "pages/home/home",
     "pages/inventory/inventory",
     "pages/add/add",
+    "pages/stock-in/stock-in",
+    "pages/consume/consume",
+    "pages/ai-assistant/ai-assistant",
+    "pages/shopping-list/shopping-list",
     "pages/profile/profile",
     "pages/recipe/recipe",
     "components/food-card/food-card",
@@ -30,7 +34,7 @@
       },
       {
         "pagePath": "pages/add/add",
-        "text": "添加"
+        "text": "记录"
       },
       {
         "pagePath": "pages/recipe/recipe",

@@ -1,87 +1,102 @@
-.form-card {
+.page-header {
+  padding: 22rpx 12rpx 16rpx;
+}
+
+.page-title {
+  font-size: 42rpx;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1.25;
+}
+
+.page-subtitle {
+  margin-top: 14rpx;
+  font-size: 27rpx;
+  line-height: 1.8;
+  color: #7b8492;
+}
+
+.action-grid {
   display: flex;
   flex-direction: column;
-  gap: 28rpx;
+  gap: 20rpx;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-
-.label {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #1F2937;
-}
-
-.input,
-.picker {
-  background: #F8FAFC;
-  border-radius: 24rpx;
-  padding: 22rpx 26rpx;
-  font-size: 28rpx;
-  color: #1F2937;
-}
-
-.save-btn {
-  margin-top: 20rpx;
-  background: #A7D8FF;
-  color: #1F2937;
-  border-radius: 999rpx;
-  font-weight: 700;
-}
-
-.quantity-control {
+.action-card {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+
+  min-height: 132rpx;
+  padding: 26rpx 28rpx;
+
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-sizing: border-box;
+
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.05);
 }
 
-.square-btn {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 20rpx;
-  background: #A7D8FF;
+.action-card:active {
+  transform: scale(0.985);
+  opacity: 0.9;
+}
+
+.action-icon {
+  width: 86rpx;
+  height: 86rpx;
+  border-radius: 24rpx;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #1F2937;
+
+  background: #eef6ff;
+  font-size: 44rpx;
+  flex-shrink: 0;
 }
 
-.quantity-input {
+.consume-card .action-icon {
+  background: #fff3df;
+}
+
+.action-content {
   flex: 1;
-  height: 80rpx;
-  background: #F8FAFC;
-  border-radius: 20rpx;
-  text-align: center;
+  min-width: 0;
+  margin-left: 22rpx;
+}
+
+.action-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.action-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1F2937;
+  color: #1f2937;
 }
 
-.emoji-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
+.action-description {
+  margin-top: 8rpx;
+  font-size: 25rpx;
+  color: #89919e;
 }
 
-.emoji-item {
-  width: 76rpx;
-  height: 76rpx;
-  border-radius: 20rpx;
-  background: #F8FAFC;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40rpx;
-  border: 4rpx solid transparent;
+.action-arrow {
+  margin-left: 18rpx;
+  font-size: 44rpx;
+  color: #b5bdc8;
 }
 
-.emoji-item.selected {
-  background: #EAF5FF;
-  border-color: #A7D8FF;
+.coming-tag {
+  padding: 5rpx 12rpx;
+  border-radius: 10rpx;
+  background: #eef3f8;
+  color: #8995a4;
+  font-size: 20rpx;
+}
+
+.disabled-card {
+  background: #fbfcfd;
 }

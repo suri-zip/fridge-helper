@@ -58,28 +58,6 @@
 
 }
 
-.area-bar {
-
-  white-space: nowrap;
-
-  margin-bottom: 20rpx;
-
-}
-
-.area-chip {
-
-  display: inline-block;
-
-  padding: 14rpx 26rpx;
-
-  margin-right: 18rpx;
-
-  background: white;
-
-  border-radius: 999rpx;
-
-}
-
 .category-bar {
 
   white-space: nowrap;

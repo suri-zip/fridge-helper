@@ -1,88 +1,66 @@
 <view class="container">
-  <view class="section-title">添加食材</view>
-
-  <view class="card form-card">
-    <view class="field">
-      <view class="label">食材名称</view>
-      <input class="input" placeholder="比如：鸡蛋" data-field="name" bindinput="onInput" />
+  <view class="page-header">
+    <view class="page-title">记录冰箱变化</view>
+    <view class="page-subtitle">
+      今天往冰箱里放了什么，或者吃掉了什么？
     </view>
+  </view>
 
-    <view class="field">
-        <view class="label">图标</view>
-        <view class="emoji-grid">
-          <block wx:for="{{emojiOptions}}" wx:key="*this">
-            <view
-              class="emoji-item {{form.emoji === item ? 'selected' : ''}}"
-              data-emoji="{{item}}"
-              bindtap="selectEmoji"
-            >
-              {{item}}
-            </view>
-          </block>
+  <view class="section-title">手动记录</view>
+
+  <view class="action-grid">
+    <view class="action-card stock-in-card" bindtap="goStockIn">
+      <view class="action-icon">📥</view>
+      <view class="action-content">
+        <view class="action-title">食材入库</view>
+        <view class="action-description">
+          添加新购买的食材
         </view>
       </view>
+      <view class="action-arrow">›</view>
+    </view>
 
-
-    <view class="field">
-  <view class="label">数量</view>
-
-  <view class="quantity-control">
-    <view class="square-btn" bindtap="decreaseQuantity">－</view>
-
-    <input
-      class="quantity-input"
-      type="number"
-      value="{{form.quantity}}"
-      data-field="quantity"
-      bindinput="onInput"
-    />
-
-    <view class="square-btn" bindtap="increaseQuantity">＋</view>
+    <view class="action-card consume-card" bindtap="goConsume">
+      <view class="action-icon">🍽️</view>
+      <view class="action-content">
+        <view class="action-title">记录消耗</view>
+        <view class="action-description">
+          扣除已经吃掉的食材
+        </view>
+      </view>
+      <view class="action-arrow">›</view>
+    </view>
   </view>
-</view>
 
-    <view class="field">
-      <view class="label">单位</view>
-      <picker range="{{unitOptions}}" bindchange="onUnitChange">
-        <view class="picker">{{form.unit}}</view>
-      </picker>
+  <view class="section-title">智能工具</view>
+
+  <view class="action-grid">
+    <view class="action-card disabled-card" bindtap="goAiAssistant">
+      <view class="action-icon">🐧</view>
+      <view class="action-content">
+        <view class="action-title-row">
+          <view class="action-title">AI 助手</view>
+          <view class="coming-tag">开发中</view>
+        </view>
+        <view class="action-description">
+          用语音记录食材变化
+        </view>
+      </view>
+      <view class="action-arrow">›</view>
     </view>
 
-    <view class="field">
-      <view class="label">存放位置</view>
-      <picker range="{{storageOptions}}" range-key="label" value="{{storageIndex}}" bindchange="onStorageChange">
-        <view class="picker">{{storageOptions[storageIndex] ? storageOptions[storageIndex].label : '请选择存放位置'}}</view>
-      </picker>
+    <view class="action-card disabled-card" bindtap="goShoppingList">
+      <view class="action-icon">🛒</view>
+      <view class="action-content">
+        <view class="action-title-row">
+          <view class="action-title">购物清单</view>
+          <view class="coming-tag">开发中</view>
+        </view>
+        <view class="action-description">
+          整理需要补货的食材
+        </view>
+      </view>
+      <view class="action-arrow">›</view>
     </view>
-
-    <view class="field">
-      <view class="label">分类</view>
-      <picker range="{{categoryOptions}}" bindchange="onCategoryChange">
-        <view class="picker">{{form.category}}</view>
-      </picker>
-    </view>
-
-    <view class="field">
-  <view class="label">购买日期</view>
-  <picker mode="date" value="{{form.purchaseDate}}" bindchange="onPurchaseDateChange">
-    <view class="picker">{{form.purchaseDate || "请选择购买日期"}}</view>
-  </picker>
-</view>
-
-<view class="field">
-  <view class="label">保质期至</view>
-  <picker mode="date" value="{{form.expireDate}}" bindchange="onExpireDateChange">
-    <view class="picker">{{form.expireDate || "请选择保质期"}}</view>
-  </picker>
-</view>
-
-    <button
-  class="save-btn"
-  loading="{{saving}}"
-  disabled="{{saving}}"
-  bindtap="onSave"
->
-  保存
-</button>
   </view>
 </view>

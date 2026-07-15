@@ -325,26 +325,6 @@
 	font-size: 22rpx;
 }
 
-
-.member-current-badge {
-	padding: 10rpx 16rpx;
-	border-radius: 999rpx;
-	background: #dbeafe;
-	color: #2563eb;
-	font-size: 22rpx;
-	font-weight: 700;
-	flex-shrink: 0;
-}
-
-.member-current-item {
-	padding-bottom: 18rpx;
-	border-bottom: 1rpx solid #edf2f7;
-}
-
-.member-edit-form {
-	padding-top: 22rpx;
-}
-
 .member-readonly-item {
 	padding: 22rpx 0;
 }
@@ -394,17 +374,6 @@
 .join-btn {
 	margin-top: 18rpx;
 }
-
-.invite-card {
-	background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
-}
-
-.invite-tip {
-	font-size: 26rpx;
-	line-height: 1.7;
-	color: #4b5563;
-}
-
 .area-form-card {
 	margin-bottom: 24rpx;
 }

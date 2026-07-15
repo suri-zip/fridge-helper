@@ -1,0 +1,417 @@
+.page-header {
+  padding: 22rpx 12rpx 16rpx;
+}
+
+.page-title {
+  margin-top: 16rpx;
+  font-size: 42rpx;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1.25;
+}
+
+.page-subtitle {
+  margin-top: 14rpx;
+  margin-bottom: 32rpx;
+  color: #7b8492;
+  font-size: 27rpx;
+  line-height: 1.8;
+}
+
+.food-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.food-item {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 128rpx;
+  padding: 22rpx 24rpx;
+
+  background: #ffffff;
+  border: 3rpx solid transparent;
+  border-radius: 26rpx;
+  box-sizing: border-box;
+
+  box-shadow: 0 8rpx 22rpx rgba(31, 41, 55, 0.05);
+}
+
+.food-item.selected {
+  background: #eef7ff;
+  border-color: #9dcefa;
+}
+
+.food-item:active {
+  transform: scale(0.99);
+  opacity: 0.92;
+}
+
+.food-left {
+  display: flex;
+  align-items: center;
+
+  flex: 1;
+  min-width: 0;
+}
+
+.food-emoji {
+  width: 84rpx;
+  height: 84rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: #f4f8fb;
+  border-radius: 22rpx;
+
+  font-size: 44rpx;
+}
+
+.food-item.selected .food-emoji {
+  background: #ffffff;
+}
+
+.food-info {
+  flex: 1;
+  min-width: 0;
+  margin-left: 22rpx;
+}
+
+.food-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 31rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.food-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+
+  margin-top: 10rpx;
+}
+
+.food-meta {
+  font-size: 25rpx;
+  color: #7b8492;
+}
+
+.storage-tag {
+  padding: 5rpx 12rpx;
+
+  background: #edf4fb;
+  border-radius: 10rpx;
+
+  font-size: 22rpx;
+  color: #5c7895;
+}
+
+.radio {
+  width: 44rpx;
+  height: 44rpx;
+  margin-left: 20rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 3rpx solid #cdd5df;
+  border-radius: 50%;
+  box-sizing: border-box;
+
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.food-item.selected .radio {
+  background: #5ca9e6;
+  border-color: #5ca9e6;
+}
+
+/* 消耗数量区域 */
+
+.consume-panel {
+  margin-top: 30rpx;
+  padding: 28rpx;
+
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-sizing: border-box;
+
+  box-shadow: 0 8rpx 22rpx rgba(31, 41, 55, 0.05);
+}
+
+.consume-title {
+  font-size: 29rpx;
+  font-weight: 700;
+  color: #263244;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+
+  margin-top: 20rpx;
+}
+
+.square-btn {
+  width: 82rpx;
+  height: 82rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: #a7d8ff;
+  border-radius: 20rpx;
+
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #183b5c;
+}
+
+.quantity-input {
+  flex: 1;
+  height: 82rpx;
+
+  background: #f5f8fb;
+  border-radius: 20rpx;
+
+  text-align: center;
+  font-size: 31rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.quantity-unit {
+  margin-top: 12rpx;
+
+  text-align: right;
+  font-size: 24rpx;
+  color: #8c95a2;
+}
+
+.consume-btn {
+  width: 100%;
+  height: 86rpx;
+  margin-top: 28rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f0a85b;
+  border-radius: 22rpx;
+
+  color: #ffffff;
+  font-size: 29rpx;
+  font-weight: 700;
+}
+
+.consume-btn::after {
+  border: none;
+}
+
+/* 搜索框，可选 */
+
+.search-box {
+  height: 84rpx;
+  padding: 0 24rpx;
+  margin-bottom: 24rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.05);
+}
+
+.search-icon {
+  color: #9ca3af;
+  font-size: 34rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 84rpx;
+  font-size: 28rpx;
+  color: #1f2937;
+}
+
+.clear-search {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #eef2f6;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+}
+
+.more-btn {
+  width: 100%;
+  height: 82rpx;
+  margin-top: 18rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #edf4fb;
+  border-radius: 22rpx;
+
+  color: #49627b;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.more-btn::after {
+  border: none;
+}
+
+/* 空状态 */
+
+.empty-card {
+  padding: 80rpx 30rpx;
+
+  background: #ffffff;
+  border-radius: 28rpx;
+
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 76rpx;
+}
+
+.empty-title {
+  margin-top: 18rpx;
+
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #374151;
+}
+
+.empty-description {
+  margin-top: 10rpx;
+
+  font-size: 25rpx;
+  color: #939ba7;
+}
+
+.form-card,
+.empty-card {
+  padding: 30rpx;
+  background: #ffffff;
+  border-radius: 30rpx;
+  box-sizing: border-box;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.05);
+}
+
+.field {
+  margin-bottom: 30rpx;
+}
+
+.label {
+  margin-bottom: 14rpx;
+  color: #263244;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.square-btn {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  background: #a7d8ff;
+  color: #183b5c;
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.quantity-input {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 20rpx;
+  background: #f5f8fb;
+
+  text-align: center;
+  color: #1f2937;
+  font-size: 31rpx;
+  font-weight: 700;
+}
+
+.quantity-hint {
+  margin-top: 12rpx;
+  text-align: right;
+  color: #8b94a1;
+  font-size: 24rpx;
+}
+
+.consume-btn {
+  height: 86rpx;
+  border-radius: 22rpx;
+  background: #f0a85b;
+  color: #ffffff;
+  font-size: 29rpx;
+  font-weight: 700;
+}
+
+.consume-btn::after {
+  border: none;
+}
+
+.empty-card {
+  padding: 80rpx 30rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 76rpx;
+}
+
+.empty-title {
+  margin-top: 20rpx;
+  color: #374151;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.empty-description {
+  margin-top: 10rpx;
+  color: #929aa6;
+  font-size: 25rpx;
+}

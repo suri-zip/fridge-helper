@@ -1,0 +1,105 @@
+<view class="container">
+<view class="page-header">
+  <view class="page-title">记录消耗</view>
+  <view class="page-subtitle">选择已经使用或吃掉的食材</view>
+  </view>
+
+  <view class="search-box">
+  <text class="search-icon">⌕</text>
+
+  <input
+    class="search-input"
+    placeholder="搜索食材"
+    value="{{keyword}}"
+    bindinput="onSearchInput"
+    bindconfirm="submitSearch"
+    confirm-type="search"
+  />
+
+  <view
+    wx:if="{{keyword}}"
+    class="clear-search"
+    bindtap="clearSearch"
+  >
+    ×
+  </view>
+</view>
+
+  <view wx:if="{{!loading && itemOptions.length > 0}}" class="form-card">
+    
+
+    <view wx:if="{{searchKeyword}}" class="search-status">
+      当前搜索：{{searchKeyword}}
+    </view>
+
+    <view class="food-list">
+      <view
+        wx:for="{{itemOptions}}"
+        wx:key="_id"
+        class="food-item {{selectedItem && item._id === selectedItem._id ? 'selected' : ''}}"
+        data-index="{{index}}"
+        bindtap="selectFood"
+      >
+        <view class="food-left">
+          <view class="food-emoji">{{item.emoji || "🍽️"}}</view>
+
+          <view class="food-info">
+            <view class="food-name">{{item.name}}</view>
+
+            <view class="food-meta-row">
+              <text class="food-meta">剩余 {{item.quantity}}{{item.unit}}</text>
+              <text class="storage-tag">{{item.storageName || "未设置"}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="radio">
+          {{selectedItem && item._id === selectedItem._id ? "✓" : ""}}
+        </view>
+      </view>
+    </view>
+
+    <button
+      wx:if="{{!showAllItems && filteredInventory.length > 5}}"
+      class="more-btn"
+      bindtap="showMoreItems"
+    >
+      显示更多
+    </button>
+
+    <view class="consume-panel" wx:if="{{selectedItem}}">
+      <view class="consume-title">消耗数量</view>
+
+      <view class="quantity-control">
+        <view class="square-btn" bindtap="decreaseAmount">－</view>
+
+        <input
+          class="quantity-input"
+          type="digit"
+          value="{{amount}}"
+          bindinput="onAmountInput"
+        />
+
+        <view class="square-btn" bindtap="increaseAmount">＋</view>
+      </view>
+
+      <view class="quantity-unit">单位：{{selectedItem.unit}}</view>
+
+      <button class="consume-btn" bindtap="submitConsume">
+        确认消耗
+      </button>
+    </view>
+  </view>
+
+  <view wx:elif="{{!loading && searchKeyword && inventory.length > 0}}" class="empty-card">
+    <view class="empty-icon">🔎</view>
+    <view class="empty-title">没有找到相关食材</view>
+    <view class="empty-description">试试换个关键词</view>
+  </view>
+
+  <view wx:elif="{{!loading && inventory.length === 0}}" class="empty-card">
+    <view class="empty-icon">🐧</view>
+    <view class="empty-title">目前没有可消耗的食材</view>
+    <view class="empty-description">先记录一些新买的食材吧</view>
+  </view>
+</view>

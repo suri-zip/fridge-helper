@@ -3,12 +3,16 @@ const {
   getStatus
 } = require("../utils/date")
 
+
 function formatItem(item) {
+  const { getStorageLabelByValue } = require("./fridgeProfile")
+
   return {
     ...item,
     id: item._id,
     expireText: getExpireText(item.expireDate),
-    status: getStatus(item.expireDate)
+    status: getStatus(item.expireDate),
+    storageName: getStorageLabelByValue(item.storage) || item.storageName || item.storage
   }
 }
 
@@ -33,7 +37,9 @@ async function callInventory(action, data = {}) {
 async function getInventory() {
   const result = await callInventory("list")
 
-  return result.items.map(formatItem)
+  return result.items
+    .filter(item => Number(item.quantity || 0) > 0)
+    .map(formatItem)
 }
 
 async function addFood(food) {
@@ -51,6 +57,18 @@ async function updateFood(itemId, updates) {
   })
 
   return formatItem(result.item)
+}
+
+async function consumeFood(itemId, amount) {
+  const result = await callInventory("consume", {
+    itemId,
+    amount
+  })
+
+  return result.item ? formatItem(result.item) : {
+    deletedId: result.deletedId,
+    consumedAmount: result.consumedAmount
+  }
 }
 
 async function deleteFood(itemId) {
@@ -81,7 +99,9 @@ module.exports = {
   getInventory,
   addFood,
   updateFood,
+  consumeFood,
   deleteFood,
   getFoodById,
-  removeFoodByStorage
+  removeFoodByStorage,
+  formatItem
 }

@@ -60,9 +60,45 @@ function validateFood(food) {
   }
 }
 
+function normalizeStorageValue(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]/g, "")
+}
+
+function getStorageName(storageValue, areas = []) {
+  const normalizedStorageValue = normalizeStorageValue(storageValue)
+
+  if (!normalizedStorageValue) {
+    return ""
+  }
+
+  const matchedArea = Array.isArray(areas)
+    ? areas.find(area => {
+        return normalizedStorageValue === normalizeStorageValue(area.id) ||
+          normalizedStorageValue === normalizeStorageValue(area.type) ||
+          normalizedStorageValue === normalizeStorageValue(area.name)
+      })
+    : null
+
+  if (!matchedArea) {
+    return normalizedStorageValue
+  }
+
+  return `${matchedArea.name}${matchedArea.type && matchedArea.type !== matchedArea.name ? `（${matchedArea.type}）` : ""}`
+}
+
+function formatItem(item, areas = []) {
+  return {
+    ...item,
+    storageName: getStorageName(item.storage, areas)
+  }
+}
+
 async function addActivityLog({
   familyId,
-  user,
+  userName,
   openid,
   action,
   itemId,
@@ -73,9 +109,8 @@ async function addActivityLog({
   await logsCollection.add({
     data: {
       familyId,
-      userId: user._id,
       openid,
-      userName: user.name || "家庭成员",
+      userName,
       action,
       itemId,
       itemName,
@@ -92,6 +127,8 @@ function formatError(error) {
     NO_FAMILY: "请先创建或加入家庭",
     INVALID_NAME: "食材名称不能为空",
     INVALID_QUANTITY: "食材数量不正确",
+    INVALID_AMOUNT: "消耗数量不正确",
+    INSUFFICIENT_QUANTITY: "现有数量不足",
     ITEM_NOT_FOUND: "没有找到这条食材记录",
     INVALID_ACTION: "不支持的库存操作"
   }
@@ -112,6 +149,17 @@ exports.main = async (event = {}) => {
     const user = await getCurrentUser(openid)
     const familyId = user.familyId
 
+    const familyResult = await db
+      .collection("family")
+      .doc(familyId)
+  .   get()
+
+    const family = familyResult.data
+
+    const member = family.members.find(
+      m => m.openid === openid
+    )
+
     switch (action) {
       case "list": {
         const result = await itemsCollection
@@ -121,9 +169,11 @@ exports.main = async (event = {}) => {
           .orderBy("updatedAt", "desc")
           .get()
 
+        const visibleItems = result.data.filter(item => Number(item.quantity || 0) > 0)
+
         return {
           success: true,
-          items: result.data
+          items: visibleItems.map(item => formatItem(item, family.areas))
         }
       }
 
@@ -149,7 +199,7 @@ exports.main = async (event = {}) => {
 
         await addActivityLog({
           familyId,
-          user,
+          userName: member.name || "家庭成员",
           openid,
           action: "add",
           itemId: item._id,
@@ -160,9 +210,83 @@ exports.main = async (event = {}) => {
 
         return {
           success: true,
-          item
+          item: formatItem(item, family.areas)
         }
       }
+
+      case "consume": {
+      const itemId = String(event.itemId || "")
+      const amount = Number(event.amount)
+
+      if (!itemId) {
+        throw new Error("ITEM_NOT_FOUND")
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new Error("INVALID_AMOUNT")
+      }
+
+      const existingResult = await itemsCollection
+        .where({
+          _id: itemId,
+          familyId
+        })
+        .limit(1)
+        .get()
+
+      if (existingResult.data.length === 0) {
+        throw new Error("ITEM_NOT_FOUND")
+      }
+
+      const existingItem = existingResult.data[0]
+      const currentQuantity = Number(existingItem.quantity)
+
+      if (amount > currentQuantity) {
+        throw new Error("INSUFFICIENT_QUANTITY")
+      }
+
+      const nextQuantity = currentQuantity - amount
+
+      if (nextQuantity === 0) {
+        await itemsCollection.doc(itemId).remove()
+      } else {
+        await itemsCollection.doc(itemId).update({
+          data: {
+            quantity: nextQuantity,
+            updatedBy: openid,
+            updatedAt: new Date()
+          }
+        })
+      }
+
+      try {
+        await addActivityLog({
+          familyId,
+          userName: member.name || "家庭成员",
+          openid,
+          action: "consume",
+          itemId: existingItem._id,
+          itemName: existingItem.name,
+          emoji: existingItem.emoji,
+          description:
+            `消耗了 ${amount}${existingItem.unit}${existingItem.name}`
+        })
+      } catch (logError) {
+        console.error("写入消耗日志失败：", logError)
+      }    
+
+      return {
+        success: true,
+        consumedAmount: amount,
+        deletedId: nextQuantity === 0 ? itemId : "",
+        item: nextQuantity === 0 ? null : formatItem({
+          ...existingItem,
+          quantity: nextQuantity,
+          updatedBy: openid,
+          updatedAt: new Date()
+        }, family.areas)
+      }
+    }
 
       case "update": {
         const itemId = String(event.itemId || "")
@@ -199,7 +323,7 @@ exports.main = async (event = {}) => {
 
         await addActivityLog({
           familyId,
-          user,
+          userName: member.name || "家庭成员",
           openid,
           action: "update",
           itemId: item._id,
@@ -210,7 +334,7 @@ exports.main = async (event = {}) => {
 
         return {
           success: true,
-          item
+          item: formatItem(item, family.areas)
         }
       }
 
@@ -239,7 +363,7 @@ exports.main = async (event = {}) => {
 
         await addActivityLog({
           familyId,
-          user,
+          userName: member.name || "家庭成员",
           openid,
           action: "delete",
           itemId,

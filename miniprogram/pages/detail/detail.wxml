@@ -4,7 +4,7 @@
 
     <view class="hero-info">
       <view class="food-title">{{item.name}}</view>
-      <view class="food-sub">{{item.storageLabel|| "未设置"}} · {{item.category}}</view>
+      <view class="food-sub">{{item.storageName|| "未设置"}} · {{item.category}}</view>
       <view class="expire-tag {{item.status}}">{{item.expireText}}</view>
     </view>
   </view>
@@ -18,7 +18,7 @@
 
       <view class="info-row">
         <view class="info-label">存放位置</view>
-        <view class="info-value">{{item.storageLabel|| "未设置"}}</view>
+        <view class="info-value">{{item.storageName|| "未设置"}}</view>
       </view>
 
       <view class="info-row">
@@ -37,7 +37,10 @@
       </view>
     </view>
 
-    <button class="primary-btn" bindtap="startEdit">编辑食材</button>
+    <view class="action-row">
+      <button class="danger-btn" bindtap="deleteItem">删除食材</button>
+      <button class="primary-btn" bindtap="startEdit">编辑食材</button>
+    </view>
   </view>
 
   <view wx:else>

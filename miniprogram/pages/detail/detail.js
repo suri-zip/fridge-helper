@@ -1,6 +1,6 @@
 const { getFoodById, updateFood, deleteFood } = require("../../services/inventory")
+const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
 const { FOOD_CATEGORIES } = require("../../services/foodCategories")
-const { getFridgeStorageOptions, refreshFamilyProfileFromCloud } = require("../../services/fridgeProfile")
 
 Page({
   data: {
@@ -22,19 +22,12 @@ Page({
     await this.loadFood()
   },
 
-  onShow() {
-    this.syncStorageOptions()
-  },
-
   async loadFood() {
   this.setData({
     loading: true
   })
 
   try {
-    await refreshFamilyProfileFromCloud()
-
-    const storageOptions = getFridgeStorageOptions()
     const item = await getFoodById(this.data.id)
 
     if (!item) {
@@ -45,25 +38,17 @@ Page({
       return
     }
 
-    const storageIndex = storageOptions.findIndex(option =>
-      String(option.value) === String(item.storage)
+    const storageOptions = getFridgeStorageOptions()
+
+    const storageIndex = storageOptions.findIndex(
+      option => String(option.value) === String(item.storage)
     )
 
-    const storageLabel =
-      storageIndex >= 0
-        ? storageOptions[storageIndex].label
-        : item.storage
-
     this.setData({
+      item,
+      form: { ...item },
       storageOptions,
-      storageIndex: storageIndex >= 0 ? storageIndex : 0,
-      item: {
-        ...item,
-        storageLabel
-      },
-      form: {
-        ...item
-      }
+      storageIndex: storageIndex >= 0 ? storageIndex : 0
     })
   } catch (err) {
     console.error("读取详情失败：", err)
@@ -79,41 +64,12 @@ Page({
   }
 },
 
-  getStorageLabel(storageValue, storageOptions = this.data.storageOptions) {
-    const match = storageOptions.find(option => option.value === storageValue || option.type === storageValue || option.name === storageValue)
-    return match ? match.label : storageValue || "暂无"
-  },
-
-  syncStorageOptions() {
-    const storageOptions = getFridgeStorageOptions()
-    const currentStorage = this.data.form.storage || (this.data.item && this.data.item.storage) || (storageOptions[0] && storageOptions[0].value) || ""
-    let storageIndex = storageOptions.findIndex(option => option.value === currentStorage || option.type === currentStorage || option.name === currentStorage)
-
-    if (storageIndex < 0) {
-      storageIndex = 0
-    }
-
-    this.setData({
-      storageOptions,
-      storageIndex,
-      "form.storage": currentStorage,
-      item: this.data.item
-        ? {
-            ...this.data.item,
-            storageLabel: this.getStorageLabel(currentStorage, storageOptions)
-          }
-        : this.data.item
-    })
-  },
 
   startEdit() {
     this.setData(
       {
         isEditing: true,
         form: { ...this.data.item }
-      },
-      () => {
-        this.syncStorageOptions()
       }
     )
   },
@@ -122,8 +78,6 @@ Page({
     this.setData({
       isEditing: false,
       form: { ...this.data.item }
-    }, () => {
-      this.syncStorageOptions()
     })
   },
 
@@ -152,8 +106,7 @@ Page({
 
     this.setData({
       storageIndex,
-      "form.storage": selectedStorage.value,
-      "item.storageLabel": selectedStorage.label
+      "form.storage": selectedStorage ? selectedStorage.value : ""
     })
   },
 
@@ -189,7 +142,7 @@ Page({
     })
   },
 
-  saveEdit() {
+  async saveEdit() {
     const form = this.data.form
 
     if (!form.name.trim()) {
@@ -200,17 +153,14 @@ Page({
       return
     }
 
-    const updated = updateFood(this.data.id, {
+    const updated = await updateFood(this.data.id, {
       ...form,
       quantity: Number(form.quantity),
       expireDate: form.expireDate || ""
     })
 
     this.setData({
-      item: {
-        ...updated,
-        storageLabel: this.getStorageLabel(updated.storage, this.data.storageOptions)
-      },
+      item: updated,
       form: { ...updated },
       isEditing: false
     })
@@ -219,5 +169,47 @@ Page({
       title: "已保存",
       icon: "success"
     })
+  },
+
+  async deleteItem() {
+    const item = this.data.item
+
+    if (!item) {
+      return
+    }
+
+    const result = await new Promise(resolve => {
+      wx.showModal({
+        title: "删除食材",
+        content: `确定删除「${item.name}」吗？删除后无法恢复。`,
+        confirmText: "删除",
+        confirmColor: "#dc2626",
+        success: resolve
+      })
+    })
+
+    if (!result.confirm) {
+      return
+    }
+
+    try {
+      await deleteFood(this.data.id)
+
+      wx.showToast({
+        title: "已删除",
+        icon: "success"
+      })
+
+      setTimeout(() => {
+        wx.navigateBack()
+      }, 500)
+    } catch (err) {
+      console.error("删除食材失败：", err)
+
+      wx.showToast({
+        title: err.message || "删除失败",
+        icon: "none"
+      })
+    }
   }
 })

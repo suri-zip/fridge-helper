@@ -70,9 +70,22 @@
             </view>
         </block>
     </view>
-    <view wx:if="{{!loading && displayList.length === 0}}" class="empty-state">
-  <view class="empty-icon">🐧</view>
-  <view class="empty-title">没有找到相关食材</view>
-  <view class="empty-text">换个关键词试试吧</view>
-</view>
+
+        <view wx:if="{{!loading && inventory.length === 0}}" class="empty-state">
+            <view class="empty-icon">🐧</view>
+            <view class="empty-title">还没有食材</view>
+            <view class="empty-text">先去记录一些新食材吧</view>
+        </view>
+
+        <view wx:elif="{{!loading && keyword && displayList.length === 0}}" class="empty-state">
+            <view class="empty-icon">🔎</view>
+            <view class="empty-title">没有找到相关食材</view>
+            <view class="empty-text">换个关键词试试吧</view>
+        </view>
+
+        <view wx:elif="{{!loading && !keyword && displayList.length === 0}}" class="empty-state">
+            <view class="empty-icon">📦</view>
+            <view class="empty-title">当前分类没有食材</view>
+            <view class="empty-text">试试切换分类看看</view>
+        </view>
 </view>

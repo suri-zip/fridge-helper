@@ -158,9 +158,7 @@ async function getFridgeAreas() {
 
   return profile.areas.map(area => ({
     ...area,
-    count: inventory.filter(item => {
-      return item.storage === area.id || item.storage === area.type || item.storage === area.name
-    }).length
+    count: getFridgeAreaItemCount(area, inventory)
   }))
 }
 
@@ -173,6 +171,41 @@ function getFridgeStorageOptions() {
     name: area.name,
     type: area.type
   }))
+}
+
+function normalizeStorageValue(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]/g, "")
+}
+
+function getStorageLabelByValue(storageValue) {
+  const normalizedStorageValue = normalizeStorageValue(storageValue)
+
+  if (!normalizedStorageValue) {
+    return ""
+  }
+
+  const matchedOption = getFridgeStorageOptions().find(option => normalizeStorageValue(option.value) === normalizedStorageValue)
+
+  return matchedOption ? matchedOption.label : normalizedStorageValue
+}
+
+function isAreaStorage(area, storageValue) {
+  if (!area) {
+    return false
+  }
+
+  const normalizedStorageValue = normalizeStorageValue(storageValue)
+
+  return normalizedStorageValue === normalizeStorageValue(area.id) ||
+    normalizedStorageValue === normalizeStorageValue(area.type) ||
+    normalizedStorageValue === normalizeStorageValue(area.name)
+}
+
+function getFridgeAreaItemCount(area, inventory = []) {
+  return inventory.filter(item => isAreaStorage(area, item.storage)).length
 }
 
 async function updateFamilyAreasOnCloud(areas, activeAreaId) {
@@ -340,6 +373,9 @@ module.exports = {
   familyToLocalProfile,
   getFridgeAreas,
   getFridgeStorageOptions,
+  getStorageLabelByValue,
+  getFridgeAreaItemCount,
+  isAreaStorage,
   addArea,
   updateArea,
   updateMember,

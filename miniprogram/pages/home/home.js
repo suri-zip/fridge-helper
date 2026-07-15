@@ -1,5 +1,5 @@
 const { getInventory } = require("../../services/inventory")
-const { refreshFamilyProfileFromCloud, setActiveArea } = require("../../services/fridgeProfile")
+const { refreshFamilyProfileFromCloud, setActiveArea, getFridgeAreaItemCount } = require("../../services/fridgeProfile")
 const { getRecentLogs } = require("../../services/activity")
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
@@ -8,8 +8,54 @@ Page({
     expiringItems: [],
     fridgeAreas: [],
     recentLogs: [],
+    greetingText: "晚上好！",
+    heroSubText: "今天冰箱很充实～",
     keyword: "",
     loading: false
+  },
+
+  getGreetingText() {
+    const hour = new Date().getHours()
+
+    if (hour < 6) {
+      return "早上好！"
+    }
+
+    if (hour < 11) {
+      return "上午好！"
+    }
+
+    if (hour < 14) {
+      return "中午好！"
+    }
+
+    if (hour < 18) {
+      return "下午好！"
+    }
+
+    return "晚上好！"
+  },
+
+  getHeroSubText(inventory = [], expiringItems = []) {
+    const itemCount = inventory.length
+
+    if (itemCount === 0) {
+      return "冰箱里还没有食材，先补一点吧～"
+    }
+
+    if (expiringItems.length > 0) {
+      return `有 ${expiringItems.length} 样食材快过期了，先处理一下吧～`
+    }
+
+    if (itemCount <= 5) {
+      return "冰箱有点空，记得补货～"
+    }
+
+    if (itemCount >= 20) {
+      return `冰箱里一共有 ${itemCount} 样食材，今天很充实～`
+    }
+
+    return `冰箱里有 ${itemCount} 样食材，状态不错～`
   },
 
   async onShow() {
@@ -27,6 +73,7 @@ Page({
 
     this.setData({
       loading: true,
+      greetingText: this.getGreetingText(),
       keyword: ""
     })
 
@@ -43,16 +90,16 @@ Page({
       const fridgeAreas = Array.isArray(profile.areas)
         ? profile.areas.map(area => ({
             ...area,
-            count: inventory.filter(item => {
-              return item.storage === area.id || item.storage === area.type || item.storage === area.name
-            }).length
+            count: getFridgeAreaItemCount(area, inventory)
           }))
         : []
+      const heroSubText = this.getHeroSubText(inventory, expiringItems)
 
       this.setData({
         expiringItems,
         fridgeAreas,
-        recentLogs
+        recentLogs,
+        heroSubText
       })
     } catch (err) {
       console.error("读取首页数据失败：", err)
@@ -81,7 +128,9 @@ Page({
       success() {
         const page = getCurrentPages().pop()
         if (page) {
-          page.setArea({ areaId, areaType })
+          if (typeof page.setArea === "function") {
+            page.setArea({ areaId, areaType })
+          }
         }
       }
     })
