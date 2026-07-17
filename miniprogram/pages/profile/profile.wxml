@@ -6,10 +6,28 @@
       <view class="hero-top">
         <view>
           <view class="hero-label">家庭管理</view>
-          <view class="hero-title">{{familyName}}</view>
-          <view class="hero-sub">当前账号可以编辑自己的资料，其他家庭成员仅展示</view>
+          <view class="hero-title-row">
+            <view class="hero-title">{{familyName}}</view>
+            <button class="family-name-edit-btn" bindtap="startEditFamilyName">✎</button>
+          </view>
         </view>
-        <view class="hero-badge">{{members.length}} 人</view>
+      </view>
+
+      <view class="family-name-edit-card" wx:if="{{isEditingFamilyName}}">
+        <view class="field">
+          <view class="label">家庭名称</view>
+          <input
+            class="input"
+            value="{{familyNameDraft}}"
+            placeholder="请输入家庭名称"
+            bindinput="onFamilyNameInput"
+          />
+        </view>
+
+        <view class="profile-actions family-name-actions">
+          <button class="secondary-btn" bindtap="cancelFamilyNameEdit" disabled="{{savingFamilyName}}">取消</button>
+          <button class="primary-btn" bindtap="saveFamilyNameEdit" loading="{{savingFamilyName}}" disabled="{{savingFamilyName}}">保存</button>
+        </view>
       </view>
 
       <view class="invite-panel">
@@ -30,7 +48,7 @@
 
   <view class="profile-text">
     <text class="profile-name">
-      {{currentMember.name || "我"}}
+      {{currentMember.name}}
     </text>
 
     <text class="role-tag">

@@ -80,6 +80,10 @@ async function ensureUser(openid) {
   }
 }
 
+function getDefaultMemberName(index) {
+  return `家庭成员${index + 1}`
+}
+
 exports.main = async event => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
@@ -88,7 +92,7 @@ exports.main = async event => {
   const member = {
     id: openid,
     openid,
-    name: "我",
+    name: getDefaultMemberName(0),
     role: "户主",
     avatar: "👤",
   }

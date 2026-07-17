@@ -8,6 +8,7 @@ const {
 	refreshFamilyProfileFromCloud,
 	addArea: addAreaToProfile,
 	updateArea,
+	updateFamilyName,
 	updateMember,
 	removeArea
 } = require("../../services/fridgeProfile")
@@ -30,6 +31,9 @@ Page({
 		editingAreaId: "",
 		editingAreaName: "",
 		editingAreaTypeIndex: 0,
+		isEditingFamilyName: false,
+		familyNameDraft: "",
+		savingFamilyName: false,
 		isEditingProfile: false,
     	savingProfile: false,
 		memberName: "",
@@ -76,6 +80,9 @@ Page({
 				memberName: "",
 				memberRoleIndex: 0,
 				memberAvatarIndex: 0,
+				isEditingFamilyName: false,
+				familyNameDraft: "",
+				savingFamilyName: false,
 			})
 			return
 		}
@@ -98,6 +105,9 @@ Page({
 			editingAreaId: "",
 			editingAreaName: "",
 			editingAreaTypeIndex: 0,
+			isEditingFamilyName: false,
+			familyNameDraft: profile.familyName,
+			savingFamilyName: false,
 			memberName: currentMember ? currentMember.name : "",
 			memberRoleIndex: currentMember ? Math.max(0, this.data.memberRoleOptions.indexOf(currentMember.role)) : 0,
 			memberAvatarIndex: currentMember ? Math.max(0, this.data.memberAvatarOptions.indexOf(currentMember.avatar)) : 0,
@@ -147,6 +157,9 @@ Page({
 			editingAreaId: "",
 			editingAreaName: "",
 			editingAreaTypeIndex: 0,
+			isEditingFamilyName: false,
+			familyNameDraft: nextProfile.familyName,
+			savingFamilyName: false,
 			memberName: "",
 			memberRoleIndex: 0,
 			memberAvatarIndex: 0,
@@ -194,6 +207,83 @@ Page({
 				})
 			}
 		})
+	},
+
+	startEditFamilyName() {
+		if (!this.data.hasFamily) {
+			return
+		}
+
+		this.setData({
+			isEditingFamilyName: true,
+			familyNameDraft: this.data.familyName || ""
+		})
+	},
+
+	onFamilyNameInput(event) {
+		this.setData({
+			familyNameDraft: event.detail.value
+		})
+	},
+
+	cancelFamilyNameEdit() {
+		if (!this.data.hasFamily) {
+			return
+		}
+
+		this.setData({
+			isEditingFamilyName: false,
+			familyNameDraft: this.data.familyName || ""
+		})
+	},
+
+	async saveFamilyNameEdit() {
+		if (!this.data.hasFamily) {
+			return
+		}
+
+		const nextFamilyName = this.data.familyNameDraft.trim()
+
+		if (!nextFamilyName) {
+			wx.showToast({
+				title: "请输入家庭名称",
+				icon: "none"
+			})
+			return
+		}
+
+		this.setData({
+			savingFamilyName: true
+		})
+
+		try {
+			const nextProfile = await updateFamilyName(nextFamilyName)
+			const areas = await getFridgeAreas()
+
+			this.setData({
+				familyName: nextProfile.familyName,
+				inviteCode: nextProfile.inviteCode,
+				members: nextProfile.members,
+				areas,
+				activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || "",
+				isEditingFamilyName: false,
+				familyNameDraft: nextProfile.familyName
+			})
+
+			wx.showToast({
+				title: "家庭名称已更新",
+				icon: "success"
+			})
+		} catch (err) {
+			wx.showToast({
+				title: err.message || "修改失败",
+				icon: "none"
+			})
+		} finally {
+			this.setData({
+				savingFamilyName: false
+			})
+		}
 	},
 
 	leaveFamily() {

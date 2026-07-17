@@ -31,6 +31,21 @@ async function ensureUser(openid) {
   }
 }
 
+function getDefaultMemberName(index) {
+  return `家庭成员${index + 1}`
+}
+
+function normalizeMembers(members) {
+  return members.map((member, index) => {
+    const name = String(member.name || "").trim()
+
+    return {
+      ...member,
+      name: name && name !== "我" ? name : getDefaultMemberName(index)
+    }
+  })
+}
+
 exports.main = async event => {
   const inviteCode = event && typeof event.inviteCode === "string" ? event.inviteCode.trim() : ""
 
@@ -48,12 +63,13 @@ exports.main = async event => {
   }
 
   const family = familyQuery.data[0]
-  const members = Array.isArray(family.members) ? family.members.slice() : []
+  const members = normalizeMembers(Array.isArray(family.members) ? family.members.slice() : [])
   const currentMemberIndex = members.findIndex(member => member.id === openid || member.openid === openid)
+  const nextMemberIndex = currentMemberIndex >= 0 ? currentMemberIndex : members.length
   const currentMember = {
     id: openid,
     openid,
-    name: currentMemberIndex >= 0 && members[currentMemberIndex].name ? members[currentMemberIndex].name : "我",
+    name: currentMemberIndex >= 0 && members[currentMemberIndex].name ? members[currentMemberIndex].name : getDefaultMemberName(nextMemberIndex),
     role: currentMemberIndex >= 0 && members[currentMemberIndex].role ? members[currentMemberIndex].role : "家人",
     avatar: currentMemberIndex >= 0 && members[currentMemberIndex].avatar ? members[currentMemberIndex].avatar : "👤",
   }

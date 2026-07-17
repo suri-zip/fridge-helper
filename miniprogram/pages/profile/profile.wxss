@@ -28,22 +28,52 @@
 	color: #0f3551;
 }
 
-.hero-sub {
+.hero-title-row {
+	display: flex;
+	align-items: center;
+	gap: 18rpx;
 	margin-top: 12rpx;
-	font-size: 26rpx;
-	line-height: 1.6;
-	color: rgba(15, 53, 81, 0.82);
 }
 
-.hero-badge {
-	min-width: 120rpx;
-	padding: 16rpx 20rpx;
+.hero-title-row .hero-title {
+	margin-top: 0;
+}
+
+.family-name-edit-btn {
+	width: 60rpx;
+	height: 44rpx;
+	min-width: 60rpx;
+	max-width: 60rpx;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
 	border-radius: 999rpx;
 	background: rgba(255, 255, 255, 0.52);
 	color: #0f3551;
-	font-size: 28rpx;
+	font-size: 32rpx;
 	font-weight: 700;
 	text-align: center;
+	line-height: 1;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+.family-name-edit-btn::after {
+	border: none;
+}
+
+.family-name-edit-card {
+	margin-top: 24rpx;
+	padding: 24rpx;
+	border-radius: 28rpx;
+	background: rgba(255, 255, 255, 0.58);
+	backdrop-filter: blur(12px);
+}
+
+.family-name-actions {
+	margin-top: 22rpx;
 }
 
 .invite-panel {

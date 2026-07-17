@@ -2,6 +2,22 @@ const { getInventory, removeFoodByStorage } = require("./inventory")
 
 const PROFILE_STORAGE_KEY = "TUNTUN_PROFILE"
 
+function getDefaultMemberName(index) {
+  return `家庭成员${index + 1}`
+}
+
+function normalizeMembers(members = []) {
+  return members.map((member, index) => {
+    const { status, ...rest } = member || {}
+    const name = typeof member.name === "string" ? member.name.trim() : ""
+
+    return {
+      ...rest,
+      name: name && name !== "我" ? name : getDefaultMemberName(index)
+    }
+  })
+}
+
 function createInviteCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
   let code = "HH-"
@@ -18,14 +34,14 @@ function getDefaultProfile() {
     familyName: "我的家庭",
     inviteCode: createInviteCode(),
     currentMemberId: "member-1",
-    members: [
+    members: normalizeMembers([
       {
         id: "member-1",
-        name: "我",
+        name: getDefaultMemberName(0),
         role: "户主",
         avatar: "👤",
       },
-    ],
+    ]),
     areas: [
       {
         id: "area-1",
@@ -87,7 +103,16 @@ function getStoredProfile() {
     return nextProfile
   }
 
-  return storedProfile
+  const normalizedProfile = {
+    ...storedProfile,
+    members: normalizeMembers(storedProfile.members)
+  }
+
+  if (normalizedProfile.members.some((member, index) => member.name !== storedProfile.members[index].name)) {
+    wx.setStorageSync(PROFILE_STORAGE_KEY, normalizedProfile)
+  }
+
+  return normalizedProfile
 }
 
 function saveProfile(profile) {
@@ -146,7 +171,7 @@ function familyToLocalProfile(family, currentMemberId) {
     familyName: family.familyName || "我的家庭",
     inviteCode: family.inviteCode || createInviteCode(),
     currentMemberId: currentMemberId || family.currentMemberId || (members[0] && members[0].id) || "",
-    members,
+    members: normalizeMembers(members),
     areas,
     activeAreaId: family.activeAreaId || (areas[0] && areas[0].id) || ""
   }
@@ -226,6 +251,36 @@ async function updateFamilyAreasOnCloud(areas, activeAreaId) {
   return result.family || null
 }
 
+async function updateFamilyName(familyName) {
+  const profile = getStoredProfile()
+  const nextFamilyName = String(familyName || "").trim()
+
+  if (!nextFamilyName) {
+    throw new Error("家庭名称不能为空")
+  }
+
+  const res = await wx.cloud.callFunction({
+    name: "updateFamilyName",
+    data: {
+      familyName: nextFamilyName
+    }
+  })
+
+  const result = res.result || {}
+
+  if (!result.success) {
+    throw new Error(result.message || "家庭名称更新失败")
+  }
+
+  const family = result.family || null
+  const syncedProfile = family ? familyToLocalProfile(family, profile.currentMemberId) : {
+    ...profile,
+    familyName: nextFamilyName
+  }
+
+  return saveProfile(syncedProfile)
+}
+
 async function addArea(areaInput) {
   const profile = getStoredProfile()
   const nextArea = {
@@ -278,8 +333,10 @@ function updateMember(memberId, updates) {
       return member
     }
 
+    const { status, ...rest } = member
+
     return {
-      ...member,
+      ...rest,
       ...updates
     }
   })
@@ -378,6 +435,7 @@ module.exports = {
   isAreaStorage,
   addArea,
   updateArea,
+  updateFamilyName,
   updateMember,
   updateCurrentMember,
   leaveFamily,

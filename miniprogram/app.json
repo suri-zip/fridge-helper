@@ -28,31 +28,31 @@
         "pagePath": "pages/home/home",
         "text": "首页",
         "iconPath": "assets/home.png",
-        "selectedIconPath": "assets/home.png"
+        "selectedIconPath": "assets/home_selected.png"
       },
       {
         "pagePath": "pages/inventory/inventory",
         "text": "库存",
         "iconPath": "assets/inventory.png",
-        "selectedIconPath": "assets/inventory.png"
+        "selectedIconPath": "assets/inventory_selected.png"
       },
       {
         "pagePath": "pages/add/add",
         "text": "记录",
         "iconPath": "assets/add.png",
-        "selectedIconPath": "assets/add.png"
+        "selectedIconPath": "assets/add_selected.png"
       },
       {
         "pagePath": "pages/recipe/recipe",
         "text": "菜谱",
         "iconPath": "assets/recipe.png",
-        "selectedIconPath": "assets/recipe.png"
+        "selectedIconPath": "assets/recipe_selected.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的",
         "iconPath": "assets/profile.png",
-        "selectedIconPath": "assets/profile.png"
+        "selectedIconPath": "assets/profile_selected.png"
       }
     ]
   },
