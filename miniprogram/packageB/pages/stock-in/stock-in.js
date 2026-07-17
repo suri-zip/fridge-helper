@@ -1,7 +1,7 @@
-const { addFood } = require("../../services/inventory")
-const { FOOD_CATEGORIES } = require("../../services/foodCategories")
-const { getFridgeStorageOptions, refreshFamilyProfileFromCloud } = require("../../services/fridgeProfile")
-const { getDaysLeft } = require("../../utils/date")
+const { addFood } = require("../../../services/inventory")
+const { FOOD_CATEGORIES } = require("../../../services/foodCategories")
+const { getFridgeStorageOptions, refreshFamilyProfileFromCloud } = require("../../../services/fridgeProfile")
+const { getDaysLeft } = require("../../../utils/date")
 
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
@@ -108,7 +108,7 @@ Page({
 
       setTimeout(() => {
         wx.switchTab({
-          url: "/pages/inventory/inventory"
+          url: "/packageA/pages/inventory/inventory"
         })
       }, 500)
     } catch (err) {
@@ -136,7 +136,7 @@ Page({
     if (!loginState || !loginState.family) {
       wx.hideTabBar()
       wx.reLaunch({
-        url: "/pages/profile/profile"
+        url: "/packageA/pages/profile/profile"
       })
       return
     }

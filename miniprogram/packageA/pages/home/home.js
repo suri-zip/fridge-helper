@@ -1,6 +1,6 @@
-const { getInventory } = require("../../services/inventory")
-const { refreshFamilyProfileFromCloud, setActiveArea, getFridgeAreaItemCount } = require("../../services/fridgeProfile")
-const { getRecentLogs } = require("../../services/activity")
+const { getInventory } = require("../../../services/inventory")
+const { refreshFamilyProfileFromCloud, setActiveArea, getFridgeAreaItemCount } = require("../../../services/fridgeProfile")
+const { getRecentLogs } = require("../../../services/activity")
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
 Page({
@@ -64,7 +64,7 @@ Page({
     if (!loginState || !loginState.family) {
       wx.hideTabBar()
       wx.reLaunch({
-        url: "/pages/profile/profile"
+        url: "/packageA/pages/profile/profile"
       })
       return
     }
@@ -124,7 +124,7 @@ Page({
     }
 
     wx.switchTab({
-      url: "/pages/inventory/inventory",
+      url: "/packageA/pages/inventory/inventory",
       success() {
         const page = getCurrentPages().pop()
         if (page) {
@@ -165,7 +165,7 @@ clearSearch() {
     getApp().globalData.inventoryFilter = "all"
 
     wx.switchTab({
-    url: "/pages/inventory/inventory"
+      url: "/packageA/pages/inventory/inventory"
   })
   },
 
@@ -179,7 +179,7 @@ clearSearch() {
     }
   
     wx.navigateTo({
-      url: `/pages/detail/detail?id=${item.id}`
+      url: `/packageB/pages/detail/detail?id=${item.id}`
     })
   }
 })

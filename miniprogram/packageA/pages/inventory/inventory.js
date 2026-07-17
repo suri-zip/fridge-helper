@@ -1,6 +1,6 @@
-const { getInventory } = require("../../services/inventory")
-const { refreshFamilyProfileFromCloud, getFridgeAreaItemCount, isAreaStorage } = require("../../services/fridgeProfile")
-const { FOOD_CATEGORIES } = require("../../services/foodCategories")
+const { getInventory } = require("../../../services/inventory")
+const { refreshFamilyProfileFromCloud, getFridgeAreaItemCount, isAreaStorage } = require("../../../services/fridgeProfile")
+const { FOOD_CATEGORIES } = require("../../../services/foodCategories")
 
 Page({
   data: {
@@ -200,7 +200,7 @@ Page({
     const id = e.currentTarget.dataset.id
 
     wx.navigateTo({
-      url: `/pages/detail/detail?id=${id}`
+      url: `/packageB/pages/detail/detail?id=${id}`
     })
   }
 })

@@ -11,7 +11,7 @@ const {
 	updateFamilyName,
 	updateMember,
 	removeArea
-} = require("../../services/fridgeProfile")
+} = require("../../../services/fridgeProfile")
 
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 

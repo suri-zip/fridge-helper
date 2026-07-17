@@ -209,8 +209,6 @@
         />
         <button class="action-btn ghost full join-btn" bindtap="joinFamily">加入家庭</button>
       </view>
-
-      <image class="help-image" src="/assets/help.png" mode="aspectFit"></image>
     </view>
   </block>
 </view>

@@ -1,7 +1,7 @@
 const {
   getInventory,
   consumeFood
-} = require("../../services/inventory")
+} = require("../../../services/inventory")
 
 Page({
   data: {

@@ -1,16 +1,22 @@
 {
   "pages": [
-    "pages/home/home",
-    "pages/inventory/inventory",
-    "pages/add/add",
-    "pages/stock-in/stock-in",
-    "pages/consume/consume",
-    "pages/ai-assistant/ai-assistant",
-    "pages/shopping-list/shopping-list",
-    "pages/profile/profile",
-    "pages/recipe/recipe",
-    "components/food-card/food-card",
-    "pages/detail/detail"
+    "packageA/pages/home/home",
+    "packageA/pages/inventory/inventory",
+    "packageA/pages/add/add",
+    "packageA/pages/recipe/recipe",
+    "packageA/pages/profile/profile"
+  ],
+  "subPackages": [
+    {
+      "root": "packageB",
+      "pages": [
+        "pages/consume/consume",
+        "pages/ai-assistant/ai-assistant",
+        "pages/shopping-list/shopping-list",
+        "pages/stock-in/stock-in",
+        "pages/detail/detail"
+      ]
+    }
   ],
   "window": {
     "navigationBarTitleText": "囤囤",
@@ -25,31 +31,31 @@
     "borderStyle": "white",
     "list": [
       {
-        "pagePath": "pages/home/home",
+        "pagePath": "packageA/pages/home/home",
         "text": "首页",
         "iconPath": "assets/home.png",
         "selectedIconPath": "assets/home_selected.png"
       },
       {
-        "pagePath": "pages/inventory/inventory",
+        "pagePath": "packageA/pages/inventory/inventory",
         "text": "库存",
         "iconPath": "assets/inventory.png",
         "selectedIconPath": "assets/inventory_selected.png"
       },
       {
-        "pagePath": "pages/add/add",
+        "pagePath": "packageA/pages/add/add",
         "text": "记录",
         "iconPath": "assets/add.png",
         "selectedIconPath": "assets/add_selected.png"
       },
       {
-        "pagePath": "pages/recipe/recipe",
+        "pagePath": "packageA/pages/recipe/recipe",
         "text": "菜谱",
         "iconPath": "assets/recipe.png",
         "selectedIconPath": "assets/recipe_selected.png"
       },
       {
-        "pagePath": "pages/profile/profile",
+        "pagePath": "packageA/pages/profile/profile",
         "text": "我的",
         "iconPath": "assets/profile.png",
         "selectedIconPath": "assets/profile_selected.png"

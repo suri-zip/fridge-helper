@@ -40,7 +40,7 @@ App({
         saveProfile(getEmptyLocalProfile())
 
         wx.reLaunch({
-          url: "/pages/profile/profile"
+          url: "/packageA/pages/profile/profile"
         })
       }
 
@@ -57,7 +57,7 @@ App({
       saveProfile(getEmptyLocalProfile())
 
       wx.reLaunch({
-        url: "/pages/profile/profile"
+        url: "/packageA/pages/profile/profile"
       })
 
       console.error("login error:", err)

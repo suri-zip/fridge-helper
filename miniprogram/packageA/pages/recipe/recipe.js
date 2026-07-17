@@ -32,7 +32,7 @@ Page({
     if (!loginState || !loginState.family) {
       wx.hideTabBar()
       wx.reLaunch({
-        url: "/pages/profile/profile"
+        url: "/packageA/pages/profile/profile"
       })
       return
     }

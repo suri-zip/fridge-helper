@@ -1,6 +1,6 @@
-const { getFoodById, updateFood, deleteFood } = require("../../services/inventory")
-const { getFridgeStorageOptions } = require("../../services/fridgeProfile")
-const { FOOD_CATEGORIES } = require("../../services/foodCategories")
+const { getFoodById, updateFood, deleteFood } = require("../../../services/inventory")
+const { getFridgeStorageOptions } = require("../../../services/fridgeProfile")
+const { FOOD_CATEGORIES } = require("../../../services/foodCategories")
 
 Page({
   data: {
