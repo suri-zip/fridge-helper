@@ -11,9 +11,10 @@ Page({
     loading: true,
     storageOptions: [],
     storageIndex: 0,
+    categoryIndex: 0,
     categoryOptions: FOOD_CATEGORIES,
-    unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"],
-    emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"]
+    unitOptions: ["个", "盒", "袋", "碗", "瓶", "杯", "斤", "g", "kg"],
+    emojiOptions: ["🥚", "🥛", "🧀",  "🥩", "🍗", "🐟", "🦐", "🍞", "🍰", "🍎","🍓", "🍌", "🥬", "🥕", "🍅", "🥔", "🥫", "🍚", "🍜", "🍲",  "🥟", "🍽️"]
   },
 
   async onLoad(options) {
@@ -48,7 +49,8 @@ Page({
       item,
       form: { ...item },
       storageOptions,
-      storageIndex: storageIndex >= 0 ? storageIndex : 0
+      storageIndex: storageIndex >= 0 ? storageIndex : 0,
+      categoryIndex: this.getCategoryIndex(item.category)
     })
   } catch (err) {
     console.error("读取详情失败：", err)
@@ -69,7 +71,8 @@ Page({
     this.setData(
       {
         isEditing: true,
-        form: { ...this.data.item }
+        form: { ...this.data.item },
+        categoryIndex: this.getCategoryIndex(this.data.item?.category)
       }
     )
   },
@@ -77,8 +80,14 @@ Page({
   cancelEdit() {
     this.setData({
       isEditing: false,
-      form: { ...this.data.item }
+      form: { ...this.data.item },
+      categoryIndex: this.getCategoryIndex(this.data.item?.category)
     })
+  },
+
+  getCategoryIndex(category) {
+    const index = this.data.categoryOptions.indexOf(category)
+    return index >= 0 ? index : 0
   },
 
   onInput(e) {
@@ -110,9 +119,17 @@ Page({
     })
   },
 
-  onCategoryChange(e) {
+  selectCategory(e) {
+    const categoryIndex = Number(e.currentTarget.dataset.index)
+    const category = this.data.categoryOptions[categoryIndex]
+
+    if (!category) {
+      return
+    }
+
     this.setData({
-      "form.category": this.data.categoryOptions[e.detail.value]
+      categoryIndex,
+      "form.category": category
     })
   },
 

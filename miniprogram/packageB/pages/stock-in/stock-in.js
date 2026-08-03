@@ -9,11 +9,15 @@ Page({
   data: {
     saving: false,
     form: {},
-    emojiOptions: ["🥚", "🥛", "🍓", "🥬", "🥩", "🍗", "🐟", "🥟", "🍞", "🍰", "🍎", "🍌", "🥕", "🍅", "🥔", "🧀", "🥫", "🍽️"],
+    emojiOptions: ["🥚", "🥛", "🧀",  "🥩", "🍗", "🐟", "🦐", "🍞", "🍰", "🍎","🍓", "🍌", "🥬", "🥕", "🍅", "🥔", "🥫", "🍚", "🍜", "🍲",  "🥟", "🍽️"],
     storageOptions: [],
     storageIndex: 0,
     categoryOptions: FOOD_CATEGORIES,
-    unitOptions: ["个", "盒", "袋", "瓶", "斤", "g", "kg"]
+    categoryIndex: 13,
+    unitOptions: ["个", "盒", "袋", "碗", "瓶", "杯", "斤", "g", "kg"],
+    quickShelfLifeValue: "1",
+    quickShelfLifeUnit: "周",
+    quickShelfLifeUnitOptions: ["周", "月", "年"]
   },
 
   getInitialForm() {
@@ -30,9 +34,14 @@ Page({
   },
 
   resetForm() {
+    const categoryIndex = this.data.categoryOptions.indexOf("其他")
+
     this.setData({
       form: this.getInitialForm(),
-      storageIndex: 0
+      storageIndex: 0,
+      categoryIndex: categoryIndex >= 0 ? categoryIndex : 0
+    }, () => {
+      this.updateExpireDateByQuickShelfLife()
     })
   },
 
@@ -60,6 +69,53 @@ Page({
     const m = String(d.getMonth() + 1).padStart(2, "0")
     const day = String(d.getDate()).padStart(2, "0")
     return `${y}-${m}-${day}`
+  },
+
+  padNumber(value) {
+    return String(value).padStart(2, "0")
+  },
+
+  formatDate(date) {
+    const year = date.getFullYear()
+    const month = this.padNumber(date.getMonth() + 1)
+    const day = this.padNumber(date.getDate())
+
+    return `${year}-${month}-${day}`
+  },
+
+  addDuration(date, amount, unit) {
+    const nextDate = new Date(date)
+
+    if (unit === "周") {
+      nextDate.setDate(nextDate.getDate() + amount * 7)
+    } else if (unit === "月") {
+      nextDate.setMonth(nextDate.getMonth() + amount)
+    } else if (unit === "年") {
+      nextDate.setFullYear(nextDate.getFullYear() + amount)
+    }
+
+    return nextDate
+  },
+
+  updateExpireDateByQuickShelfLife() {
+    const purchaseDate = this.data.form.purchaseDate || this.getToday()
+    const value = Number(this.data.quickShelfLifeValue)
+    const unit = this.data.quickShelfLifeUnit
+
+    if (!Number.isFinite(value) || value <= 0) {
+      return
+    }
+
+    const baseDate = new Date(`${purchaseDate}T00:00:00`)
+    if (Number.isNaN(baseDate.getTime())) {
+      return
+    }
+
+    const expireDate = this.addDuration(baseDate, value, unit)
+
+    this.setData({
+      "form.expireDate": this.formatDate(expireDate)
+    })
   },
 
   async onSave() {
@@ -153,6 +209,10 @@ Page({
 
     this.setData({
       [`form.${field}`]: value
+    }, () => {
+      if (field === "purchaseDate") {
+        this.updateExpireDateByQuickShelfLife()
+      }
     })
   },
 
@@ -176,9 +236,17 @@ Page({
     })
   },
 
-  onCategoryChange(e) {
+  selectCategory(e) {
+    const categoryIndex = Number(e.currentTarget.dataset.index)
+    const category = this.data.categoryOptions[categoryIndex]
+
+    if (!category) {
+      return
+    }
+
     this.setData({
-      "form.category": this.data.categoryOptions[e.detail.value]
+      categoryIndex,
+      "form.category": category
     })
   },
 
@@ -197,6 +265,27 @@ Page({
   onPurchaseDateChange(e) {
     this.setData({
       "form.purchaseDate": e.detail.value
+    }, () => {
+      this.updateExpireDateByQuickShelfLife()
+    })
+  },
+
+  onQuickShelfLifeValueInput(e) {
+    this.setData({
+      quickShelfLifeValue: e.detail.value
+    }, () => {
+      this.updateExpireDateByQuickShelfLife()
+    })
+  },
+
+  onQuickShelfLifeUnitChange(e) {
+    const unitIndex = Number(e.detail.value)
+    const quickShelfLifeUnit = this.data.quickShelfLifeUnitOptions[unitIndex] || "周"
+
+    this.setData({
+      quickShelfLifeUnit
+    }, () => {
+      this.updateExpireDateByQuickShelfLife()
     })
   },
 

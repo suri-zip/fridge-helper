@@ -10,19 +10,33 @@
   <input
     class="search-input"
     placeholder="搜索食材"
-    value="{{keyword}}"
+    value="{{searchDraft}}"
     bindinput="onSearchInput"
-    bindconfirm="submitSearch"
+    bindconfirm="confirmSearch"
     confirm-type="search"
   />
 
   <view
-    wx:if="{{keyword}}"
+    wx:if="{{searchDraft}}"
     class="clear-search"
     bindtap="clearSearch"
   >
     ×
   </view>
+</view>
+
+<view class="sort-box">
+  <text class="sort-label">排序</text>
+  <picker
+    mode="selector"
+    range="{{sortOptions}}"
+    range-key="label"
+    bindchange="onSortChange"
+  >
+    <view class="sort-picker">
+      {{sortLabel}}
+    </view>
+  </picker>
 </view>
 
   <view wx:if="{{!loading && itemOptions.length > 0}}" class="form-card">
@@ -56,6 +70,29 @@
         <view class="radio">
           {{selectedItem && item._id === selectedItem._id ? "✓" : ""}}
         </view>
+
+        <view class="consume-panel inline-consume-panel" wx:if="{{selectedItem && item._id === selectedItem._id}}">
+          <view class="consume-title">消耗数量</view>
+
+          <view class="quantity-control">
+            <view class="square-btn" bindtap="decreaseAmount">－</view>
+
+            <input
+              class="quantity-input"
+              type="digit"
+              value="{{amount}}"
+              bindinput="onAmountInput"
+            />
+
+            <view class="square-btn" bindtap="increaseAmount">＋</view>
+          </view>
+
+          <view class="quantity-unit">单位：{{selectedItem.unit}}</view>
+
+          <button class="consume-btn" bindtap="submitConsume">
+            确认消耗
+          </button>
+        </view>
       </view>
     </view>
 
@@ -67,28 +104,6 @@
       显示更多
     </button>
 
-    <view class="consume-panel" wx:if="{{selectedItem}}">
-      <view class="consume-title">消耗数量</view>
-
-      <view class="quantity-control">
-        <view class="square-btn" bindtap="decreaseAmount">－</view>
-
-        <input
-          class="quantity-input"
-          type="digit"
-          value="{{amount}}"
-          bindinput="onAmountInput"
-        />
-
-        <view class="square-btn" bindtap="increaseAmount">＋</view>
-      </view>
-
-      <view class="quantity-unit">单位：{{selectedItem.unit}}</view>
-
-      <button class="consume-btn" bindtap="submitConsume">
-        确认消耗
-      </button>
-    </view>
   </view>
 
   <view wx:elif="{{!loading && searchKeyword && inventory.length > 0}}" class="empty-card">

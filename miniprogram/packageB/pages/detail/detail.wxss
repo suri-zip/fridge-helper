@@ -167,6 +167,29 @@
   border-color: #A7D8FF;
 }
 
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.category-item {
+  padding: 18rpx 22rpx;
+  border-radius: 22rpx;
+  background: #F8FAFC;
+  border: 4rpx solid transparent;
+  color: #1F2937;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.category-item.selected {
+  background: #EAF5FF;
+  border-color: #A7D8FF;
+  color: #2B5F87;
+}
+
 .quantity-control {
   display: flex;
   align-items: center;

@@ -90,9 +90,17 @@
 
       <view class="field">
         <view class="label">分类</view>
-        <picker range="{{categoryOptions}}" bindchange="onCategoryChange">
-          <view class="picker">{{form.category}}</view>
-        </picker>
+        <view class="category-grid">
+          <block wx:for="{{categoryOptions}}" wx:key="*this">
+            <view
+              class="category-item {{categoryIndex === index ? 'selected' : ''}}"
+              data-index="{{index}}"
+              bindtap="selectCategory"
+            >
+              {{item}}
+            </view>
+          </block>
+        </view>
       </view>
 
       <view class="field">

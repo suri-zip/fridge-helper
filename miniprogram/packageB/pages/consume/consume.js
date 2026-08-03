@@ -8,6 +8,13 @@ Page({
     inventory: [],
     filteredInventory: [],
     itemOptions: [],
+    sortMode: "purchase-desc",
+    sortLabel: "最近购买",
+    sortOptions: [
+      { label: "最近购买", value: "purchase-desc" },
+      { label: "最早购买", value: "purchase-asc" },
+      { label: "优先临期", value: "expire-asc" }
+    ],
 
     itemIndex: 0,
     selectedItem: null,
@@ -33,9 +40,46 @@ Page({
     return `${item.emoji || "🍽️"} ${item.name} · 剩余 ${item.quantity}${item.unit}`
   },
 
+  getSortDateValue(item, field) {
+    const rawValue = item && item[field] ? String(item[field]).trim() : ""
+    const timestamp = Date.parse(rawValue)
+
+    return Number.isFinite(timestamp) ? timestamp : 0
+  },
+
+  sortInventory(items) {
+    const sortMode = this.data.sortMode || "none"
+
+    if (sortMode === "none") {
+      return items
+    }
+
+    const sortedItems = [...items]
+
+    sortedItems.sort((left, right) => {
+      const leftPurchase = this.getSortDateValue(left, "purchaseDate")
+      const rightPurchase = this.getSortDateValue(right, "purchaseDate")
+      const leftExpire = this.getSortDateValue(left, "expireDate")
+      const rightExpire = this.getSortDateValue(right, "expireDate")
+
+      switch (sortMode) {
+        case "purchase-desc":
+          return rightPurchase - leftPurchase
+        case "purchase-asc":
+          return leftPurchase - rightPurchase
+        case "expire-asc":
+          return leftExpire - rightExpire
+        default:
+          return 0
+      }
+    })
+
+    return sortedItems
+  },
+
   applyFilters() {
     const keyword = String(this.data.searchKeyword || "").trim().toLowerCase()
-    const filteredInventory = this.data.inventory.filter(item => {
+    const filteredInventory = this.sortInventory(this.data.inventory.filter(item => {
       if (!keyword) {
         return true
       }
@@ -51,7 +95,7 @@ Page({
         .toLowerCase()
 
       return searchableText.includes(keyword)
-    })
+    }))
 
     const itemOptions = this.data.showAllItems
       ? filteredInventory
@@ -107,7 +151,11 @@ Page({
 
   onSearchInput(e) {
     this.setData({
-      searchDraft: e.detail.value
+      searchDraft: e.detail.value,
+      searchKeyword: e.detail.value,
+      showAllItems: false
+    }, () => {
+      this.applyFilters()
     })
   },
 
@@ -133,6 +181,18 @@ Page({
   showMoreItems() {
     this.setData({
       showAllItems: true
+    }, () => {
+      this.applyFilters()
+    })
+  },
+
+  onSortChange(e) {
+    const selectedSort = this.data.sortOptions[Number(e.detail.value)] || this.data.sortOptions[0]
+
+    this.setData({
+      sortMode: selectedSort.value,
+      sortLabel: selectedSort.label,
+      showAllItems: false
     }, () => {
       this.applyFilters()
     })

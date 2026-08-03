@@ -27,6 +27,7 @@
 .food-item {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   width: 100%;
   min-height: 128rpx;
@@ -136,6 +137,12 @@
   font-size: 25rpx;
   font-weight: 700;
   color: #ffffff;
+}
+
+.inline-consume-panel {
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: 18rpx;
 }
 
 .food-item.selected .radio {
@@ -254,6 +261,44 @@
   height: 84rpx;
   font-size: 28rpx;
   color: #1f2937;
+}
+
+.sort-box {
+  margin-bottom: 24rpx;
+  padding: 0 24rpx;
+  height: 84rpx;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.05);
+  border: 2rpx solid rgba(92, 169, 230, 0.14);
+}
+
+.sort-label {
+  flex-shrink: 0;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #526174;
+}
+
+.sort-picker {
+  min-width: 210rpx;
+  padding: 14rpx 20rpx;
+  background: #eef7ff;
+  border-radius: 18rpx;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #2f6f9f;
+  box-sizing: border-box;
+}
+
+.sort-picker:active {
+  opacity: 0.86;
+  transform: scale(0.99);
 }
 
 .clear-search {

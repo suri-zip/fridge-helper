@@ -57,9 +57,17 @@
 
     <view class="field">
       <view class="label">分类</view>
-      <picker range="{{categoryOptions}}" bindchange="onCategoryChange">
-        <view class="picker">{{form.category}}</view>
-      </picker>
+      <view class="category-grid">
+        <block wx:for="{{categoryOptions}}" wx:key="*this">
+          <view
+            class="category-item {{categoryIndex === index ? 'selected' : ''}}"
+            data-index="{{index}}"
+            bindtap="selectCategory"
+          >
+            {{item}}
+          </view>
+        </block>
+      </view>
     </view>
 
     <view class="field">
@@ -68,6 +76,22 @@
     <view class="picker">{{form.purchaseDate || "请选择购买日期"}}</view>
   </picker>
 </view>
+
+    <view class="field">
+      <view class="label">快速设置保质期</view>
+      <view class="quick-shelf-life">
+        <input
+          class="quick-shelf-life-input"
+          type="number"
+          value="{{quickShelfLifeValue}}"
+          bindinput="onQuickShelfLifeValueInput"
+        />
+        <picker range="{{quickShelfLifeUnitOptions}}" bindchange="onQuickShelfLifeUnitChange">
+          <view class="quick-shelf-life-unit">{{quickShelfLifeUnit}}</view>
+        </picker>
+      </view>
+      <view class="quick-shelf-life-hint">会自动按购买日期计算保质期至</view>
+    </view>
 
 <view class="field">
   <view class="label">保质期至</view>
