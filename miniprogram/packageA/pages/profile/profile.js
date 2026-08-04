@@ -26,6 +26,8 @@ Page({
 		members: [],
 		areas: [],
 		activeAreaId: "",
+		isAreaSettingsExpanded: false,
+		isAutoReplenishExpanded: false,
 		newAreaName: "",
 		newAreaTypeIndex: 0,
 		editingAreaId: "",
@@ -77,6 +79,8 @@ Page({
 				members: [],
 				areas: [],
 				activeAreaId: "",
+				isAreaSettingsExpanded: false,
+				isAutoReplenishExpanded: false,
 				memberName: "",
 				memberRoleIndex: 0,
 				memberAvatarIndex: 0,
@@ -102,6 +106,8 @@ Page({
 			members: profile.members,
 			areas,
 			activeAreaId: profile.activeAreaId || (profile.areas[0] && profile.areas[0].id) || "",
+			isAreaSettingsExpanded: false,
+			isAutoReplenishExpanded: false,
 			editingAreaId: "",
 			editingAreaName: "",
 			editingAreaTypeIndex: 0,
@@ -154,6 +160,8 @@ Page({
 			members: nextProfile.members,
 			areas,
 			activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || "",
+			isAreaSettingsExpanded: false,
+			isAutoReplenishExpanded: false,
 			editingAreaId: "",
 			editingAreaName: "",
 			editingAreaTypeIndex: 0,
@@ -470,8 +478,19 @@ Page({
 		if (!this.data.hasFamily) {
 			return
 		}
-
 		this.syncCurrentMemberEditor(getStoredProfile())
+	},
+
+	toggleAreaSettings() {
+		this.setData({
+			isAreaSettingsExpanded: !this.data.isAreaSettingsExpanded
+		})
+	},
+
+	toggleAutoReplenishSettings() {
+		this.setData({
+			isAutoReplenishExpanded: !this.data.isAutoReplenishExpanded
+		})
 	},
 
 	onMemberNameInput(event) {
