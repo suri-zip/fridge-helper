@@ -444,6 +444,198 @@
 	color: #5b6472;
 }
 
+.auto-search-card,
+.auto-rule-card,
+.auto-enabled-card {
+	padding: 22rpx;
+	margin-top: 18rpx;
+	background: #f8fbff;
+	border-radius: 22rpx;
+	box-shadow: none;
+	border: 1rpx solid #e7eef8;
+}
+
+.auto-search-input-row {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+}
+
+.auto-search-input {
+	flex: 1;
+	height: 88rpx;
+	padding: 0 24rpx;
+	box-sizing: border-box;
+	border-radius: 22rpx;
+	background: #ffffff;
+	font-size: 28rpx;
+	color: #17324d;
+	border: 1rpx solid #dbe8f5;
+}
+
+.auto-search-loading {
+	flex-shrink: 0;
+	font-size: 24rpx;
+	color: #7a8595;
+}
+
+.auto-search-results {
+	margin-top: 16rpx;
+	display: flex;
+	flex-direction: column;
+	gap: 12rpx;
+}
+
+.auto-search-result {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 18rpx 18rpx 18rpx 20rpx;
+	border-radius: 20rpx;
+	background: #ffffff;
+	border: 1rpx solid #e6eef8;
+}
+
+.auto-search-result.selected {
+	border-color: #4a9fe8;
+	background: #eef7ff;
+}
+
+.auto-search-result-main {
+	min-width: 0;
+	padding-right: 16rpx;
+}
+
+.auto-search-result-name,
+.auto-selected-food-name,
+.auto-rule-title {
+	font-size: 30rpx;
+	font-weight: 700;
+	color: #1f2937;
+}
+
+.auto-search-result-meta,
+.auto-rule-desc {
+	margin-top: 8rpx;
+	font-size: 24rpx;
+	color: #6b7280;
+}
+
+.auto-search-result-arrow {
+	font-size: 34rpx;
+	color: #9aa7b7;
+	flex-shrink: 0;
+}
+
+.auto-empty-hint {
+	margin-top: 14rpx;
+	font-size: 24rpx;
+	line-height: 1.7;
+	color: #7a8595;
+}
+
+.auto-selected-food {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16rpx;
+	margin-bottom: 18rpx;
+}
+
+.auto-rule-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 14rpx;
+}
+
+.auto-rule-field .label {
+	margin-bottom: 10rpx;
+	font-size: 26rpx;
+	color: #145b88;
+}
+
+.auto-inline-input {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+}
+
+.auto-number-input {
+	flex: 1;
+	height: 84rpx;
+	padding: 0 20rpx;
+	box-sizing: border-box;
+	border-radius: 18rpx;
+	background: #ffffff;
+	font-size: 28rpx;
+	color: #17324d;
+	border: 1rpx solid #dbe8f5;
+}
+
+.auto-unit-text {
+	flex-shrink: 0;
+	padding: 0 16rpx;
+	height: 84rpx;
+	line-height: 84rpx;
+	border-radius: 18rpx;
+	background: #eef6ff;
+	color: #2f7be4;
+	font-size: 24rpx;
+}
+
+.auto-rule-preview {
+	margin-top: 16rpx;
+	font-size: 24rpx;
+	line-height: 1.7;
+	color: #5b6472;
+}
+
+.auto-rule-list {
+	display: flex;
+	flex-direction: column;
+	gap: 14rpx;
+}
+
+.auto-rule-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18rpx;
+	padding: 16rpx 18rpx;
+	border-radius: 18rpx;
+	background: #ffffff;
+	border: 1rpx solid #e6eef8;
+}
+
+.auto-rule-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.auto-rule-ops {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+	margin-top: 12rpx;
+}
+
+.auto-rule-op-btn {
+	font-size: 24rpx;
+	line-height: 1;
+	color: #2f7be4;
+	padding: 6rpx 0;
+}
+
+.auto-rule-op-btn.danger {
+	color: #dc2626;
+}
+
+.auto-rule-op-separator {
+	width: 1rpx;
+	height: 20rpx;
+	background: #d7e3f0;
+}
+
 .empty-state-card {
 	padding: 40rpx 28rpx;
 	text-align: center;

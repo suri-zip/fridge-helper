@@ -211,8 +211,137 @@
       </view>
 
       <view wx:if="{{isAutoReplenishExpanded}}" class="setting-body">
-        <view class="auto-replenish-note">
-          这个功能会在后续支持按食材设置最低库存，低于阈值时自动加入购物清单。
+        <view class="auto-search-card soft-card">
+          <view class="section-subtitle">搜索食材</view>
+          <view class="auto-search-input-row">
+            <input
+              class="auto-search-input"
+              placeholder="搜索库存里的食材"
+              value="{{autoReplenishSearchQuery}}"
+              bindinput="onAutoReplenishSearchInput"
+            />
+            <view wx:if="{{autoReplenishSearchLoading}}" class="auto-search-loading">搜索中…</view>
+          </view>
+
+          <view wx:if="{{autoReplenishSearchResults.length}}" class="auto-search-results">
+            <view
+              wx:for="{{autoReplenishSearchResults}}"
+              wx:key="id"
+              wx:for-item="item"
+              class="auto-search-result {{autoReplenishSelectedItem && autoReplenishSelectedItem.id === item.id ? 'selected' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="selectAutoReplenishFood"
+            >
+              <view class="auto-search-result-main">
+                <view class="auto-search-result-name">{{item.name}}</view>
+                <view class="auto-search-result-meta">{{item.quantity}}{{item.unit}} · {{item.storageName || item.storage || '未设置位置'}}</view>
+              </view>
+              <view class="auto-search-result-arrow">›</view>
+            </view>
+          </view>
+
+          <view wx:elif="{{autoReplenishSearchQuery}}" class="auto-empty-hint">没有找到匹配的食材</view>
+          <view wx:else class="auto-empty-hint">搜索食材名后，从库存里选一个来设置规则</view>
+        </view>
+
+        <view wx:if="{{autoReplenishSelectedItem && !editingAutoReplenishRuleId}}" class="auto-rule-card soft-card">
+          <view class="section-subtitle">定规则</view>
+          <view class="auto-selected-food">
+            <view class="auto-selected-food-name">{{autoReplenishSelectedItem.name}}</view>
+            <view class="source-badge">{{autoReplenishSelectedItem.quantity}}{{autoReplenishSelectedItem.unit}}</view>
+          </view>
+
+          <view class="auto-rule-grid">
+            <view class="auto-rule-field">
+              <view class="label">库存低于</view>
+              <view class="auto-inline-input">
+                <input class="auto-number-input" type="number" value="{{autoReplenishThreshold}}" bindinput="onAutoReplenishThresholdInput" />
+                <view class="auto-unit-text">{{autoReplenishSelectedItem.unit}}</view>
+              </view>
+            </view>
+
+            <view class="auto-rule-field">
+              <view class="label">自动加入</view>
+              <view class="auto-inline-input">
+                <input class="auto-number-input" type="number" value="{{autoReplenishQuantity}}" bindinput="onAutoReplenishQuantityInput" />
+                <view class="auto-unit-text">{{autoReplenishSelectedItem.unit}}</view>
+              </view>
+            </view>
+          </view>
+
+          <view class="auto-rule-preview">
+            库存小于等于 {{autoReplenishThreshold}}{{autoReplenishSelectedItem.unit}} 时，自动加入 {{autoReplenishQuantity}}{{autoReplenishSelectedItem.unit}} 到购物清单。
+          </view>
+
+          <view class="area-form-actions">
+            <button class="action-btn primary full" bindtap="addAutoReplenishRule">开启自动补货</button>
+          </view>
+        </view>
+
+        <view wx:elif="{{!editingAutoReplenishRuleId}}" class="auto-rule-card soft-card">
+          <view class="auto-empty-hint">从上面的搜索结果里选择一个食材</view>
+        </view>
+
+        <view class="auto-enabled-card soft-card">
+          <view class="section-subtitle">已经设置的自动补货</view>
+
+          <view wx:if="{{autoReplenishRules.length}}" class="auto-rule-list">
+            <view wx:for="{{autoReplenishRules}}" wx:key="id" wx:for-item="rule" class="auto-rule-item">
+              <view class="auto-rule-info">
+                <view class="auto-rule-title">{{rule.foodName}}</view>
+                <view class="auto-rule-desc">库存小于等于 {{rule.threshold}}{{rule.unit}} 时，自动补货 {{rule.addQuantity}}{{rule.unit}}</view>
+                <view class="auto-rule-ops">
+                  <view class="auto-rule-op-btn" data-rule-id="{{rule.id}}" bindtap="startEditAutoReplenishRule">编辑</view>
+                  <view class="auto-rule-op-separator"></view>
+                  <view class="auto-rule-op-btn danger" data-rule-id="{{rule.id}}" bindtap="removeAutoReplenishRule">删除</view>
+                </view>
+              </view>
+
+              <switch
+                checked="{{rule.enabled}}"
+                data-rule-id="{{rule.id}}"
+                bindchange="onAutoReplenishRuleToggle"
+                color="#4f9fe8"
+              />
+            </view>
+          </view>
+
+          <view wx:else class="auto-empty-hint">还没有开启的自动补货规则</view>
+        </view>
+
+        <view wx:if="{{editingAutoReplenishRuleId && autoReplenishSelectedItem}}" class="auto-rule-card soft-card">
+          <view class="section-subtitle">编辑规则</view>
+          <view class="auto-selected-food">
+            <view class="auto-selected-food-name">{{autoReplenishSelectedItem.name}}</view>
+            <view class="source-badge">{{autoReplenishSelectedItem.quantity}}{{autoReplenishSelectedItem.unit}}</view>
+          </view>
+
+          <view class="auto-rule-grid">
+            <view class="auto-rule-field">
+              <view class="label">库存低于</view>
+              <view class="auto-inline-input">
+                <input class="auto-number-input" type="number" value="{{autoReplenishThreshold}}" bindinput="onAutoReplenishThresholdInput" />
+                <view class="auto-unit-text">{{autoReplenishSelectedItem.unit}}</view>
+              </view>
+            </view>
+
+            <view class="auto-rule-field">
+              <view class="label">自动加入</view>
+              <view class="auto-inline-input">
+                <input class="auto-number-input" type="number" value="{{autoReplenishQuantity}}" bindinput="onAutoReplenishQuantityInput" />
+                <view class="auto-unit-text">{{autoReplenishSelectedItem.unit}}</view>
+              </view>
+            </view>
+          </view>
+
+          <view class="auto-rule-preview">
+            库存小于等于 {{autoReplenishThreshold}}{{autoReplenishSelectedItem.unit}} 时，自动加入 {{autoReplenishQuantity}}{{autoReplenishSelectedItem.unit}} 到购物清单。
+          </view>
+
+          <view class="area-form-actions two-btns">
+            <button class="action-btn ghost" bindtap="cancelAutoReplenishEdit">取消编辑</button>
+            <button class="action-btn primary" bindtap="addAutoReplenishRule">保存修改</button>
+          </view>
         </view>
       </view>
     </view>

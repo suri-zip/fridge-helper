@@ -10,6 +10,8 @@ const command = db.command
 const usersCollection = db.collection("users")
 const itemsCollection = db.collection("items")
 const logsCollection = db.collection("activity_logs")
+const restockRuleCollection = db.collection("restock_rules")
+const shoppingListCollection = db.collection("shopping_list")
 
 /**
  * 根据当前微信用户查找用户记录和家庭 ID。
@@ -119,6 +121,94 @@ async function addActivityLog({
       createdAt: new Date()
     }
   })
+}
+
+async function tryAutoRestockAfterConsume({
+  familyId,
+  openid,
+  consumedItem,
+  nextQuantity
+}) {
+  const itemName = String(consumedItem.name || "").trim()
+  const normalizedItemName = itemName.toLowerCase()
+  const foodId = String(consumedItem._id || "")
+
+  const rulesResult = await restockRuleCollection
+    .where({
+      familyId,
+      enabled: true
+    })
+    .get()
+
+  const matchedRule = (rulesResult.data || []).find(rule => {
+    const ruleFoodId = String(rule.foodId || "")
+    const ruleItemName = String(rule.itemName || "").trim()
+    const normalizedRuleName = ruleItemName.toLowerCase()
+
+    const isFoodIdMatched = Boolean(ruleFoodId && foodId && ruleFoodId === foodId)
+    const isNameMatched = Boolean(normalizedRuleName && normalizedRuleName === normalizedItemName)
+
+    return isFoodIdMatched || isNameMatched
+  })
+
+  if (!matchedRule) {
+    return { triggered: false, reason: "RULE_NOT_FOUND" }
+  }
+
+  const threshold = Number(matchedRule.threshold)
+
+  if (!Number.isFinite(threshold) || nextQuantity > threshold) {
+    return { triggered: false, reason: "THRESHOLD_NOT_REACHED" }
+  }
+
+  const pendingResult = await shoppingListCollection
+    .where({
+      familyId,
+      name: itemName,
+      bought: false
+    })
+    .limit(1)
+    .get()
+
+  if (pendingResult.data.length > 0) {
+    return {
+      triggered: false,
+      reason: "PENDING_EXISTS",
+      shoppingItemId: pendingResult.data[0]._id
+    }
+  }
+
+  const quantity = Number(matchedRule.addQuantity)
+
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    return { triggered: false, reason: "INVALID_ADD_QUANTITY" }
+  }
+
+  const now = new Date()
+
+  const addedResult = await shoppingListCollection.add({
+    data: {
+      familyId,
+      name: itemName,
+      quantity,
+      unit: String(matchedRule.unit || consumedItem.unit || "个"),
+      source: "auto",
+      bought: false,
+      restockRuleId: matchedRule._id,
+      restockTriggerItemId: foodId,
+      createdBy: openid,
+      updatedBy: openid,
+      createdAt: now,
+      updatedAt: now
+    }
+  })
+
+  return {
+    triggered: true,
+    reason: "ADDED_TO_SHOPPING_LIST",
+    shoppingItemId: addedResult._id,
+    ruleId: matchedRule._id
+  }
 }
 
 function formatError(error) {
@@ -273,12 +363,35 @@ exports.main = async (event = {}) => {
         })
       } catch (logError) {
         console.error("写入消耗日志失败：", logError)
-      }    
+      }
+
+      let autoRestock = {
+        triggered: false,
+        reason: "NOT_PROCESSED"
+      }
+
+      try {
+        autoRestock = await tryAutoRestockAfterConsume({
+          familyId,
+          openid,
+          consumedItem: existingItem,
+          nextQuantity
+        })
+      } catch (restockError) {
+        console.error("自动补货检查失败：", restockError)
+
+        autoRestock = {
+          triggered: false,
+          reason: "AUTO_RESTOCK_ERROR",
+          message: restockError.message || "自动补货检查失败"
+        }
+      }
 
       return {
         success: true,
         consumedAmount: amount,
         deletedId: nextQuantity === 0 ? itemId : "",
+        autoRestock,
         item: nextQuantity === 0 ? null : formatItem({
           ...existingItem,
           quantity: nextQuantity,

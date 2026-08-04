@@ -65,9 +65,11 @@ async function consumeFood(itemId, amount) {
     amount
   })
 
-  return result.item ? formatItem(result.item) : {
+  return {
+    item: result.item ? formatItem(result.item) : null,
     deletedId: result.deletedId,
-    consumedAmount: result.consumedAmount
+    consumedAmount: result.consumedAmount,
+    autoRestock: result.autoRestock || null
   }
 }
 

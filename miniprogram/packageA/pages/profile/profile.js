@@ -12,6 +12,7 @@ const {
 	updateMember,
 	removeArea
 } = require("../../../services/fridgeProfile")
+const { getInventory } = require("../../../services/inventory")
 
 const LOGIN_STATE_KEY = "TUNTUN_LOGIN_STATE"
 
@@ -28,6 +29,14 @@ Page({
 		activeAreaId: "",
 		isAreaSettingsExpanded: false,
 		isAutoReplenishExpanded: false,
+		autoReplenishSearchQuery: "",
+		autoReplenishSearchLoading: false,
+		autoReplenishSearchResults: [],
+		autoReplenishSelectedItem: null,
+		autoReplenishThreshold: "3",
+		autoReplenishQuantity: "1",
+		editingAutoReplenishRuleId: "",
+		autoReplenishRules: [],
 		newAreaName: "",
 		newAreaTypeIndex: 0,
 		editingAreaId: "",
@@ -81,6 +90,14 @@ Page({
 				activeAreaId: "",
 				isAreaSettingsExpanded: false,
 				isAutoReplenishExpanded: false,
+				autoReplenishSearchQuery: "",
+				autoReplenishSearchLoading: false,
+				autoReplenishSearchResults: [],
+				autoReplenishSelectedItem: null,
+				autoReplenishThreshold: "3",
+				autoReplenishQuantity: "1",
+				editingAutoReplenishRuleId: "",
+				autoReplenishRules: [],
 				memberName: "",
 				memberRoleIndex: 0,
 				memberAvatarIndex: 0,
@@ -108,6 +125,14 @@ Page({
 			activeAreaId: profile.activeAreaId || (profile.areas[0] && profile.areas[0].id) || "",
 			isAreaSettingsExpanded: false,
 			isAutoReplenishExpanded: false,
+			autoReplenishSearchQuery: "",
+			autoReplenishSearchLoading: false,
+			autoReplenishSearchResults: [],
+			autoReplenishSelectedItem: null,
+			autoReplenishThreshold: "3",
+			autoReplenishQuantity: "1",
+			editingAutoReplenishRuleId: "",
+			autoReplenishRules: [],
 			editingAreaId: "",
 			editingAreaName: "",
 			editingAreaTypeIndex: 0,
@@ -162,6 +187,14 @@ Page({
 			activeAreaId: nextProfile.activeAreaId || (nextProfile.areas[0] && nextProfile.areas[0].id) || "",
 			isAreaSettingsExpanded: false,
 			isAutoReplenishExpanded: false,
+			autoReplenishSearchQuery: "",
+			autoReplenishSearchLoading: false,
+			autoReplenishSearchResults: [],
+			autoReplenishSelectedItem: null,
+			autoReplenishThreshold: "3",
+			autoReplenishQuantity: "1",
+			editingAutoReplenishRuleId: "",
+			autoReplenishRules: [],
 			editingAreaId: "",
 			editingAreaName: "",
 			editingAreaTypeIndex: 0,
@@ -488,9 +521,362 @@ Page({
 	},
 
 	toggleAutoReplenishSettings() {
+		const willExpand = !this.data.isAutoReplenishExpanded
+
 		this.setData({
-			isAutoReplenishExpanded: !this.data.isAutoReplenishExpanded
+			isAutoReplenishExpanded: willExpand
 		})
+
+		if (willExpand && !this.data.autoReplenishRules.length) {
+			this.loadAutoReplenishRules()
+		}
+	},
+
+	async callRestockRule(action, data = {}) {
+		try {
+			const res = await wx.cloud.callFunction({
+				name: "restockRule",
+				data: {
+					action,
+					...data
+				}
+			})
+
+			const result = res.result || {}
+
+			// 兼容旧返回格式：没有 success 但返回了规则数据。
+			if (typeof result.success === "undefined") {
+				if (action === "list" && Array.isArray(result.rules)) {
+					return {
+						success: true,
+						...result
+					}
+				}
+
+				if (action === "upsert" && result.rule) {
+					return {
+						success: true,
+						...result
+					}
+				}
+
+				if (action === "toggle" && result.rule) {
+					return {
+						success: true,
+						...result
+					}
+				}
+
+				if (action === "delete" && result.deletedId) {
+					return {
+						success: true,
+						...result
+					}
+				}
+			}
+
+			if (!result.success) {
+				throw new Error(result.message || result.code || result.errMsg || "自动补货设置失败")
+			}
+
+			return result
+		} catch (error) {
+			const message = String((error && error.message) || "")
+
+			if (message.includes("restockRule") && (message.includes("not found") || message.includes("FunctionName parameter could not be found"))) {
+				throw new Error("请先部署 restockRule 云函数")
+			}
+
+			throw error
+		}
+	},
+
+	normalizeRestockRule(rule) {
+		return {
+			id: rule._id || rule.id || "",
+			foodId: String(rule.foodId || ""),
+			foodName: String(rule.itemName || rule.foodName || ""),
+			threshold: Number(rule.threshold || 0),
+			addQuantity: Number(rule.addQuantity || 0),
+			unit: String(rule.unit || "个"),
+			enabled: Boolean(rule.enabled)
+		}
+	},
+
+	async loadAutoReplenishRules() {
+		try {
+			const result = await this.callRestockRule("list")
+			const rules = Array.isArray(result.rules)
+				? result.rules.map(rule => this.normalizeRestockRule(rule))
+				: []
+
+			this.setData({
+				autoReplenishRules: rules
+			})
+		} catch (error) {
+			console.error("读取自动补货规则失败：", error)
+
+			wx.showToast({
+				title: error.message || "读取规则失败",
+				icon: "none"
+			})
+		}
+	},
+
+	async searchAutoReplenishFoods(query) {
+		const keyword = String(query || "").trim().toLowerCase()
+
+		this.setData({
+			autoReplenishSearchQuery: query,
+			autoReplenishSearchLoading: Boolean(keyword)
+		})
+
+		if (!keyword) {
+			this.setData({
+				autoReplenishSelectedItem: null,
+				autoReplenishSearchResults: []
+			})
+			return
+		}
+
+		try {
+			const inventory = await getInventory()
+			const results = inventory.filter(item => {
+				const name = String(item.name || "").toLowerCase()
+				const category = String(item.category || "").toLowerCase()
+
+				return name.includes(keyword) || category.includes(keyword)
+			}).slice(0, 8)
+
+			this.setData({
+				autoReplenishSearchResults: results
+			})
+		} catch (error) {
+			console.error("搜索库存食材失败：", error)
+
+			wx.showToast({
+				title: error.message || "搜索失败",
+				icon: "none"
+			})
+		} finally {
+			this.setData({
+				autoReplenishSearchLoading: false
+			})
+		}
+	},
+
+	onAutoReplenishSearchInput(event) {
+		this.searchAutoReplenishFoods(event.detail.value)
+	},
+
+	selectAutoReplenishFood(event) {
+		const { id } = event.currentTarget.dataset
+		const selectedItem = this.data.autoReplenishSearchResults.find(item => String(item.id) === String(id))
+
+		if (!selectedItem) {
+			return
+		}
+
+		const currentStock = Number(selectedItem.quantity || 0)
+
+		this.setData({
+			autoReplenishSelectedItem: selectedItem,
+			autoReplenishThreshold: String(Math.max(0, currentStock - 2)),
+			autoReplenishQuantity: String(Math.max(1, currentStock || 1))
+		})
+	},
+
+	onAutoReplenishThresholdInput(event) {
+		this.setData({
+			autoReplenishThreshold: event.detail.value
+		})
+	},
+
+	onAutoReplenishQuantityInput(event) {
+		this.setData({
+			autoReplenishQuantity: event.detail.value
+		})
+	},
+
+	startEditAutoReplenishRule(event) {
+		const { ruleId } = event.currentTarget.dataset
+		const rule = this.data.autoReplenishRules.find(item => String(item.id) === String(ruleId))
+
+		if (!rule) {
+			return
+		}
+
+		this.setData({
+			editingAutoReplenishRuleId: String(rule.id),
+			autoReplenishSelectedItem: {
+				id: String(rule.foodId || ""),
+				name: rule.foodName,
+				unit: rule.unit || "个",
+				quantity: "-"
+			},
+			autoReplenishThreshold: String(rule.threshold),
+			autoReplenishQuantity: String(rule.addQuantity)
+		})
+	},
+
+	cancelAutoReplenishEdit() {
+		this.setData({
+			editingAutoReplenishRuleId: "",
+			autoReplenishSelectedItem: null,
+			autoReplenishThreshold: "3",
+			autoReplenishQuantity: "1"
+		})
+	},
+
+	async addAutoReplenishRule() {
+		const selectedItem = this.data.autoReplenishSelectedItem
+		const editingRuleId = String(this.data.editingAutoReplenishRuleId || "")
+		const threshold = Number(this.data.autoReplenishThreshold)
+		const addQuantity = Number(this.data.autoReplenishQuantity)
+
+		if (!selectedItem) {
+			wx.showToast({
+				title: "请先搜索并选择一个食材",
+				icon: "none"
+			})
+			return
+		}
+
+		if (!Number.isFinite(threshold) || threshold < 0) {
+			wx.showToast({
+				title: "请输入正确阈值",
+				icon: "none"
+			})
+			return
+		}
+
+		if (!Number.isFinite(addQuantity) || addQuantity <= 0) {
+			wx.showToast({
+				title: "请输入正确补货数量",
+				icon: "none"
+			})
+			return
+		}
+
+		const editingRule = editingRuleId
+			? this.data.autoReplenishRules.find(rule => String(rule.id) === editingRuleId)
+			: null
+
+		try {
+			await this.callRestockRule("upsert", {
+				rule: {
+					foodId: String(selectedItem.id || editingRule?.foodId || ""),
+					itemName: String(selectedItem.name || "").trim(),
+					threshold,
+					addQuantity,
+					unit: selectedItem.unit || "个",
+					enabled: editingRule ? Boolean(editingRule.enabled) : true
+				}
+			})
+
+			await this.loadAutoReplenishRules()
+
+			this.setData({
+				editingAutoReplenishRuleId: "",
+				autoReplenishSelectedItem: null,
+				autoReplenishSearchQuery: "",
+				autoReplenishSearchResults: []
+			})
+
+			wx.showToast({
+				title: editingRule ? "规则已更新" : "规则已添加",
+				icon: "success"
+			})
+		} catch (error) {
+			console.error("保存自动补货规则失败：", error)
+
+			wx.showToast({
+				title: error.message || "保存失败",
+				icon: "none"
+			})
+		}
+	},
+
+	async onAutoReplenishRuleToggle(event) {
+		const { ruleId } = event.currentTarget.dataset
+		const enabled = Boolean(event.detail.value)
+
+		try {
+			await this.callRestockRule("toggle", {
+				ruleId: String(ruleId || ""),
+				enabled
+			})
+
+			const nextRules = this.data.autoReplenishRules.map(rule => {
+				if (String(rule.id) !== String(ruleId)) {
+					return rule
+				}
+
+				return {
+					...rule,
+					enabled
+				}
+			})
+
+			this.setData({
+				autoReplenishRules: nextRules
+			})
+		} catch (error) {
+			console.error("更新自动补货开关失败：", error)
+
+			wx.showToast({
+				title: error.message || "更新失败",
+				icon: "none"
+			})
+
+			this.loadAutoReplenishRules()
+		}
+	},
+
+	async removeAutoReplenishRule(event) {
+		const { ruleId } = event.currentTarget.dataset
+
+		if (!ruleId) {
+			return
+		}
+
+		const modalResult = await new Promise(resolve => {
+			wx.showModal({
+				title: "删除规则",
+				content: "删除后不会再自动补货该食材，确认删除吗？",
+				confirmText: "删除",
+				confirmColor: "#dc2626",
+				success: resolve
+			})
+		})
+
+		if (!modalResult.confirm) {
+			return
+		}
+
+		try {
+			await this.callRestockRule("delete", {
+				ruleId: String(ruleId)
+			})
+
+			await this.loadAutoReplenishRules()
+
+			if (String(this.data.editingAutoReplenishRuleId || "") === String(ruleId)) {
+				this.cancelAutoReplenishEdit()
+			}
+
+			wx.showToast({
+				title: "规则已删除",
+				icon: "success"
+			})
+		} catch (error) {
+			console.error("删除自动补货规则失败：", error)
+
+			wx.showToast({
+				title: error.message || "删除失败",
+				icon: "none"
+			})
+		}
 	},
 
 	onMemberNameInput(event) {
