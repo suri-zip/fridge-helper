@@ -79,7 +79,6 @@
   <view class="voice-fab-box">
     <view
       class="voice-fab {{isRecording ? 'recording' : ''}} {{isRecognizing ? 'recognizing' : ''}}"
-      catchtap="onVoiceButtonTap"
       catchtouchstart="onVoiceTouchStart"
       catchtouchmove="onVoiceTouchMove"
       catchtouchend="onVoiceTouchEnd"

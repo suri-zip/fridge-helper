@@ -106,6 +106,7 @@ Page({
     const unitAliasMap = {
       "个": "个",
       "只": "个",
+      "包": "袋",
       "盒": "盒",
       "袋": "袋",
       "碗": "碗",
@@ -119,6 +120,102 @@ Page({
     }
 
     return unitAliasMap[unit] || ""
+  },
+
+  normalizeVoiceText(text) {
+    return String(text || "")
+      .replace(/[，。！？、,.!?]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  },
+
+  normalizeStorageSearchText(text) {
+    return this.normalizeVoiceText(text)
+      .replace(/(放在|放到|放进|放入|放|在|到|里面|里边|那边|这边|这里|那里|上面|下面|里头|外面|附近|边上|位置|区域|格子|那一格|这一格|这个位置|那个位置)/g, " ")
+      .replace(/(左边|左侧|左手边)/g, "左侧")
+      .replace(/(右边|右侧|右手边)/g, "右侧")
+      .replace(/(中间|中部|中间层)/g, "中间")
+      .replace(/(门上|门架|门边|门栏|门上层|门架层|门架位)/g, "门架")
+      .replace(/(冷藏室|冷藏区|保鲜室|保鲜区|保鲜|冷藏)/g, "冷藏")
+      .replace(/(冷冻室|冷冻区|冰冻室|急冻区|冷冻|冰冻|急冻)/g, "冷冻")
+      .replace(/\s+/g, "")
+      .trim()
+  },
+
+  parseStorageInfo(voiceText) {
+    const text = this.normalizeStorageSearchText(voiceText)
+
+    if (!text) {
+      return {
+        storageValue: "",
+        matchedText: ""
+      }
+    }
+
+    const storageOptions = Array.isArray(this.data.storageOptions) ? this.data.storageOptions : []
+
+    const normalizedOptions = storageOptions.map(option => {
+      const label = this.normalizeStorageSearchText(option.label)
+      const name = this.normalizeStorageSearchText(option.name)
+      const type = this.normalizeStorageSearchText(option.type)
+
+      return {
+        option,
+        candidates: [label, name, type].filter(Boolean)
+      }
+    })
+
+    const exactMatch = normalizedOptions.find(item => item.candidates.some(candidate => candidate && (text.includes(candidate) || candidate.includes(text))))
+
+    if (exactMatch) {
+      return {
+        storageValue: exactMatch.option.value,
+        matchedText: exactMatch.option.label || exactMatch.option.name || exactMatch.option.type || ""
+      }
+    }
+
+    const scoredMatch = normalizedOptions
+      .map(item => {
+        const bestCandidate = item.candidates.reduce((best, candidate) => {
+          if (!candidate) {
+            return best
+          }
+
+          const overlap = candidate.split("").filter(char => text.includes(char)).length
+          const prefixBonus = text.startsWith(candidate) || candidate.startsWith(text) ? candidate.length : 0
+          const score = overlap + prefixBonus
+
+          if (!best || score > best.score) {
+            return {
+              candidate,
+              score
+            }
+          }
+
+          return best
+        }, null)
+
+        return {
+          option: item.option,
+          score: bestCandidate ? bestCandidate.score : 0,
+          candidate: bestCandidate ? bestCandidate.candidate : ""
+        }
+      })
+      .sort((left, right) => right.score - left.score)
+
+    const topMatch = scoredMatch[0]
+
+    if (topMatch && topMatch.score >= 2) {
+      return {
+        storageValue: topMatch.option.value,
+        matchedText: topMatch.option.label || topMatch.option.name || topMatch.candidate || ""
+      }
+    }
+
+    return {
+      storageValue: "",
+      matchedText: ""
+    }
   },
 
   parseShelfLifeInfo(voiceText) {
@@ -252,7 +349,7 @@ Page({
 
   parseQuantityAndUnit(voiceText) {
     const text = String(voiceText || "")
-    const quantityMatch = text.match(/(\d+(?:\.\d+)?|半|[零一二两三四五六七八九十百千]+)\s*(个|只|盒|袋|碗|瓶|杯|斤|g|kg|克|千克)?/i)
+    const quantityMatch = text.match(/(\d+(?:\.\d+)?|半|[零一二两三四五六七八九十百千]+)\s*(个|只|包|盒|袋|碗|瓶|杯|斤|g|kg|克|千克)?/i)
 
     if (!quantityMatch) {
       return {
@@ -294,11 +391,20 @@ Page({
   },
 
   getVoiceFoodName(voiceText) {
-    return String(voiceText || "")
-      .replace(/[，。！？、,.!?]/g, " ")
+    const text = this.normalizeVoiceText(voiceText)
+
+    return text
+      .replace(/(嗯+|呃+|额+|啊+|呀+|吧+|呢+|嘛+|哈+|哦+|喔+|诶+|哎+|唉+|嘿+|嗨+)/g, " ")
+      .replace(/(那个|这个|就是|然后|这样|这样子|其实|反正|大概|可能|差不多)/g, " ")
       .replace(/(我|我们|咱们|今天|昨天|前天|后天|大后天|刚刚|刚才|现在|上午|中午|下午|晚上|早上|这次|这回|这会儿|本来|刚)/g, " ")
       .replace(/(要|想|帮我|请|把|给我|麻烦|可以|能不能)/g, " ")
       .replace(/(买了|买过|新买|补货|入库|添加|新增|放进|放入|采购|买|弄了|带了|带来|带回|带回来了)/g, " ")
+      .replace(/(保质期是|保质期为|保质期有|保质期到|保质期)/g, " ")
+      .replace(/([零一二两三四五六七八九十百千\d]+\s*(天|周|星期|个月|月|年))/g, " ")
+      .replace(/(放在|放到|放进|放入).{0,20}?了/g, " ")
+      .replace(/(放在|放到|放进|放入)/g, " ")
+      .replace(/(放|在|到|里面|里边|那边|这边|这里|那里|上面|下面|里头|外面|里面了)/g, " ")
+      .replace(/(冷藏室|冷藏|保鲜室|保鲜|冷藏区|冷藏格|冰箱冷藏|冷冻室|冷冻|冰冻|急冻|冷冻区|冷冻格|冰箱冷冻|门架|门上|门栏|门边|门上层|门架层|门架位|蔬菜区|抽屉|真空冰温室|冰柜|冷柜)/g, " ")
       .replace(/\s+/g, " ")
       .trim()
   },
@@ -312,10 +418,12 @@ Page({
 
     const shelfLifeInfo = this.parseShelfLifeInfo(voiceText)
     const quantityInfo = this.parseQuantityAndUnit(voiceText.replace(shelfLifeInfo.matchedText || "", " "))
+    const storageInfo = this.parseStorageInfo(voiceText)
 
     let foodNameText = voiceText
       .replace(shelfLifeInfo.matchedText || "", " ")
       .replace(quantityInfo.matchedText || "", " ")
+      .replace(storageInfo.matchedText || "", " ")
 
     const foodName = this.getVoiceFoodName(foodNameText)
 
@@ -351,6 +459,15 @@ Page({
     if (shelfLifeInfo.quickShelfLifeValue && shelfLifeInfo.quickShelfLifeUnit) {
       nextData.quickShelfLifeValue = shelfLifeInfo.quickShelfLifeValue
       nextData.quickShelfLifeUnit = shelfLifeInfo.quickShelfLifeUnit
+    }
+
+    if (storageInfo.storageValue) {
+      const matchedStorageIndex = (this.data.storageOptions || []).findIndex(option => option.value === storageInfo.storageValue)
+
+      if (matchedStorageIndex >= 0) {
+        nextData.storageIndex = matchedStorageIndex
+        nextData["form.storage"] = storageInfo.storageValue
+      }
     }
 
     this.setData(nextData, () => {

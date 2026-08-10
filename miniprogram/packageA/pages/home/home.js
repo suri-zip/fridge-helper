@@ -18,7 +18,7 @@ Page({
     loading: false,
     isRecording: false,
     isRecognizing: false,
-    voiceStatusText: "长按说话",
+    voiceStatusText: "长按开始录音",
     voiceResultText: ""
   },
 
@@ -79,7 +79,7 @@ Page({
           icon: "none"
         })
         this.setData({
-          voiceStatusText: "长按说话"
+          voiceStatusText: "长按开始录音"
         })
       } finally {
         this.setData({
@@ -504,6 +504,10 @@ Page({
       clearTimeout(this.holdTimer)
       this.holdTimer = null
     }
+
+    this.stopVoiceRecord()
+
+    this.stopVoiceRecord()
   },
 
   onVoiceTouchCancel() {

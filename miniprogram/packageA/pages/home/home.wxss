@@ -214,10 +214,11 @@
 
 .voice-status {
   margin-top: 10rpx;
-  width: 124rpx;
+  width: 160rpx;
   text-align: center;
   color: #1f3552;
   font-size: 22rpx;
   font-weight: 700;
   line-height: 1.2;
+  white-space: nowrap;
 }
