@@ -35,27 +35,10 @@
   <view class="section-title">智能工具</view>
 
   <view class="action-grid">
-    <view class="action-card disabled-card" bindtap="goAiAssistant">
-      <view class="action-icon">🐧</view>
-      <view class="action-content">
-        <view class="action-title-row">
-          <view class="action-title">AI 助手</view>
-          <view class="coming-tag">开发中</view>
-        </view>
-        <view class="action-description">
-          用语音记录食材变化
-        </view>
-      </view>
-      <view class="action-arrow">›</view>
-    </view>
-
-    <view class="action-card disabled-card" bindtap="goShoppingList">
+    <view class="action-card" bindtap="goShoppingList">
       <view class="action-icon">🛒</view>
       <view class="action-content">
-        <view class="action-title-row">
-          <view class="action-title">购物清单</view>
-          <view class="coming-tag">开发中</view>
-        </view>
+        <view class="action-title">购物清单</view>
         <view class="action-description">
           整理需要补货的食材
         </view>

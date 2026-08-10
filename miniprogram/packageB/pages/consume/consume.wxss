@@ -301,6 +301,23 @@
   transform: scale(0.99);
 }
 
+.search-status {
+  margin-bottom: 10rpx;
+  color: #6b7a90;
+  font-size: 24rpx;
+}
+
+.voice-hint {
+  margin-top: 8rpx;
+  margin-bottom: 16rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 14rpx;
+  background: #eef7ff;
+  color: #2f6f9f;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
 .clear-search {
   width: 48rpx;
   height: 48rpx;

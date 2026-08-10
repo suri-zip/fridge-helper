@@ -46,6 +46,10 @@
       当前搜索：{{searchKeyword}}
     </view>
 
+    <view wx:if="{{voiceHintText}}" class="voice-hint">
+      {{voiceHintText}}
+    </view>
+
     <view class="food-list">
       <view
         wx:for="{{itemOptions}}"

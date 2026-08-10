@@ -11,12 +11,6 @@ Page({
     })
   },
 
-  goAiAssistant() {
-    wx.navigateTo({
-      url: "/packageB/pages/ai-assistant/ai-assistant"
-    })
-  },
-
   goShoppingList() {
     wx.navigateTo({
       url: "/packageB/pages/shopping-list/shopping-list"

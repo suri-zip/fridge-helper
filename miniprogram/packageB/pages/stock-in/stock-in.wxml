@@ -4,7 +4,7 @@
   <view class="card form-card">
     <view class="field">
       <view class="label">食材名称</view>
-      <input class="input" placeholder="比如：鸡蛋" data-field="name" bindinput="onInput" />
+      <input class="input" placeholder="比如：鸡蛋" value="{{form.name}}" data-field="name" bindinput="onInput" />
     </view>
 
     <view class="field">

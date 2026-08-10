@@ -72,4 +72,24 @@
     暂时还没有更新记录
   </view>
 </view>
+
+<view class="voice-fab-wrap">
+  <view class="voice-result" wx:if="{{voiceResultText}}">识别：{{voiceResultText}}</view>
+
+  <view class="voice-fab-box">
+    <view
+      class="voice-fab {{isRecording ? 'recording' : ''}} {{isRecognizing ? 'recognizing' : ''}}"
+      catchtap="onVoiceButtonTap"
+      catchtouchstart="onVoiceTouchStart"
+      catchtouchmove="onVoiceTouchMove"
+      catchtouchend="onVoiceTouchEnd"
+      catchtouchcancel="onVoiceTouchCancel"
+    >
+      <image wx:if="{{!isRecording}}" class="voice-fab-icon" src="/assets/mic-white.svg" mode="aspectFit" />
+      <view wx:if="{{isRecording}}" class="voice-record-dot"></view>
+    </view>
+
+    <view class="voice-status">{{voiceStatusText}}</view>
+  </view>
+</view>
 </view>
